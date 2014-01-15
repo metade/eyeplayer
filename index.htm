@@ -29,11 +29,11 @@
 
   <script type="text/javascript">
     var videoInput = document.getElementById('inputVideo');
-    var canvasInput = document.createElement('canvas');
+    var canvasOutput = document.getElementById('overlay');
 
     require(['eyePlayer'], function(eyePlayer) {
       eyeplayer = new eyePlayer();
-      eyeplayer.init(videoInput, canvasInput);
+      eyeplayer.init(videoInput, canvasOutput);
       eyeplayer.start();
     });
   </script>
