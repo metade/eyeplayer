@@ -9,5 +9,5 @@ require.config({
 });
 
 if (!window.requireTestMode) {
-  require(['main'], function(){ });
+  require(['eyePlayer'], function(){ });
 }

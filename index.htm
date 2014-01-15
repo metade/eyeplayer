@@ -4,8 +4,38 @@
   <meta charset="utf-8">
   <title>An awesome requirejs app</title>
   <script data-main="app/config" src="bower_components/requirejs/require.js"></script>
+
+  <style>
+    canvas#overlay {
+      height: 480px;
+      position: absolute;
+    }
+    div#videoContainer {
+      height: 480px;
+      position: relative;
+    }
+    video {
+      height: 480px;
+      position: absolute;
+    }
+  </style>
 </head>
 <body>
   <h1>eyeplayer running!</h1>
+  <div id="videoContainer">
+    <video id="inputVideo" autoplay></video>
+    <canvas id="overlay"></canvas>
+  </div>
+
+  <script type="text/javascript">
+    var videoInput = document.getElementById('inputVideo');
+    var canvasInput = document.createElement('canvas');
+
+    require(['eyePlayer'], function(eyePlayer) {
+      eyeplayer = new eyePlayer();
+      eyeplayer.init(videoInput, canvasInput);
+      eyeplayer.start();
+    });
+  </script>
 </body>
 </html>
