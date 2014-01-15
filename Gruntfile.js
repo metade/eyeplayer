@@ -50,11 +50,11 @@ module.exports = function(grunt) {
         },
         src: ['app/**/*.js']
       },
-      test: {
+      spec: {
         options: {
-          jshintrc: 'test/.jshintrc'
+          jshintrc: '.jshintrc'
         },
-        src: ['test/**/*.js']
+        src: ['spec/**/*.js']
       },
     },
     watch: {
