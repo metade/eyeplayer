@@ -1,6 +1,6 @@
 {
   "name": "eyeplayer",
-  "description": "An awesome requirejs app",
+  "description": "Control stuff with your eyes",
   "version": "0.0.0",
   "engines": {
     "node": ">= 0.8.0"
@@ -27,6 +27,7 @@
     "grunt-contrib-watch": "*",
     "grunt-contrib-clean": "*",
     "grunt-contrib-requirejs": "*",
-    "grunt-contrib-connect": "*"
+    "grunt-contrib-connect": "*",
+    "grunt-contrib-jasmine": "*"
   }
 }

@@ -34,6 +34,9 @@ module.exports = function(grunt) {
         dest: 'dist/require.min.js'
       },
     },
+    jasmine: {
+      files: ['spec/**/*.js']
+    },
     jshint: {
       gruntfile: {
         options: {
@@ -61,11 +64,11 @@ module.exports = function(grunt) {
       },
       app: {
         files: '<%= jshint.app.src %>',
-        tasks: ['jshint:app', 'qunit']
+        tasks: ['jshint:app', 'jasmine']
       },
       test: {
         files: '<%= jshint.test.src %>',
-        tasks: ['jshint:test', 'qunit']
+        tasks: ['jshint:test', 'jasmine']
       },
     },
     requirejs: {
@@ -110,14 +113,14 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
+  grunt.loadNpmTasks('grunt-contrib-jasmine');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-connect');
 
   // Default task.
-  grunt.registerTask('default', ['jshint', 'qunit', 'clean', 'requirejs', 'concat', 'uglify']);
+  grunt.registerTask('default', ['jshint', 'jasmine', 'clean', 'requirejs', 'concat', 'uglify']);
   grunt.registerTask('preview', ['connect:development']);
   grunt.registerTask('preview-live', ['default', 'connect:production']);
 
