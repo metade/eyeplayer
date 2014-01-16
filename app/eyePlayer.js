@@ -1,13 +1,16 @@
 // to depend on a bower installed component:
 // define(['bower_components/componentName/file'])
 
-define("eyePlayer", ["headtrackr"], function(headtrackr) {
+define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, blobMotionDetector) {
   return function eyePlayer() {
     var htracker, htrackerCanvas,
       video, videoWidth, videoHeight,
-      canvas, ctx;
+      canvas, ctx,
+      motiondetector;
 
     function faceFound(event) {
+      if (!videoWidth || !videoHeight) return;
+
       var eyes = {
         x: Math.floor(event.x-event.width/2 + event.width/10),
         y: Math.floor(event.y-event.height/2+event.height/3*2),
@@ -15,6 +18,9 @@ define("eyePlayer", ["headtrackr"], function(headtrackr) {
         height: Math.floor(event.height/3),
         angle: event.angle
       };
+
+      var frame = ctx.getImageData(0, 0, videoWidth, videoHeight);
+      blobs = motiondetector.detect(frame);
 
       ctx.clearRect(0, 0, videoWidth, videoHeight );
       ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
@@ -55,10 +61,12 @@ define("eyePlayer", ["headtrackr"], function(headtrackr) {
     this.init = function(videoInput, canvasOverlay) {
       video = videoInput, canvas = canvasOverlay;
       ctx = canvas.getContext('2d');
-      htracker = new headtrackr.Tracker({
-        ui : false, calcAngles : false,
-      });
 
+      motiondetector = new blobMotionDetector();
+
+      htracker = new headtrackr.Tracker({
+        ui : false, calcAngles : true,
+      });
       htrackerCanvas = document.createElement('canvas');
       htracker.init(videoInput, htrackerCanvas);
       document.addEventListener('facetrackingEvent', handleFaceTrackingEvent);

@@ -5,34 +5,23 @@
         <link rel="stylesheet" href="bower_components/jasmine/lib/jasmine-core/jasmine.css">
     </head>
     <body>
+        <canvas id="debug"></canvas>
+
         <script src="bower_components/jasmine/lib/jasmine-core/jasmine.js"></script>
         <script src="bower_components/jasmine/lib/jasmine-core/jasmine-html.js"></script>
 
         <!-- include source files here... -->
-
-        <!-- include spec files here... -->
-        <script src="spec/test.js"></script>
+        <script data-main="app/config" src="bower_components/requirejs/require.js"></script>
 
         <script>
-            (function() {
-                var jasmineEnv = jasmine.getEnv();
-                jasmineEnv.updateInterval = 1000;
-                var htmlReporter = new jasmine.HtmlReporter();
-                jasmineEnv.addReporter(htmlReporter);
-                jasmineEnv.specFilter = function(spec) {
-                    return htmlReporter.specFilter(spec);
-                };
-                var currentWindowOnload = window.onload;
-                window.onload = function() {
-                    if (currentWindowOnload) {
-                        currentWindowOnload();
-                    }
-                    execJasmine();
-                };
-                function execJasmine() {
-                    jasmineEnv.execute();
-                }
-            })();
+          require(
+            [
+              '../spec/blendDifferenceSpec',
+            ],
+            function() {
+              jasmine.getEnv().addReporter(new jasmine.HtmlReporter());
+              jasmine.getEnv().execute();
+            });
         </script>
     </body>
 </html>
