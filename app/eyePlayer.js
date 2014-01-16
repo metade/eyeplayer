@@ -8,12 +8,22 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       canvas, ctx,
       motiondetector;
 
+    function drawBox(box, colour) {
+      ctx.save();
+      ctx.strokeStyle = colour;
+      ctx.translate(box.x, box.y)
+      if (box.angle) ctx.rotate(box.angle-(Math.PI/2));
+      ctx.strokeRect((-(box.width/2)) >> 0,
+        (-(box.height/2)) >> 0, box.width, box.height);
+      ctx.restore();
+    }
+
     function faceFound(event) {
       if (!videoWidth || !videoHeight) return;
 
       var eyes = {
-        x: Math.floor(event.x-event.width/2 + event.width/10),
-        y: Math.floor(event.y-event.height/2+event.height/3*2),
+        x: event.x,
+        y: event.y,
         width: Math.floor(event.width - event.width/5),
         height: Math.floor(event.height/3),
         angle: event.angle
@@ -24,19 +34,12 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
 
       ctx.clearRect(0, 0, videoWidth, videoHeight );
       ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+      drawBox(event, '#00CC00');
+      drawBox(eyes, '#CC0000');
 
-      ctx.translate(event.x, event.y)
-      ctx.rotate(event.angle-(Math.PI/2));
-      ctx.strokeStyle = '#00CC00';
-      ctx.strokeRect((-(event.width/2)) >> 0,
-        (-(event.height/2)) >> 0, event.width, event.height);
-
-      ctx.strokeStyle = '#CC0000';
-      ctx.strokeRect((-(eyes.width/2)) >> 0,
-        (-(eyes.height/2)) >> 0, eyes.width, eyes.height);
-
-      ctx.rotate((Math.PI/2) - event.angle);
-      ctx.translate(-event.x, -event.y);
+      for (var i=0; i<blobs.length; i++) {
+        drawBox(blobs[i], '#0000CC');
+      }
     }
 
     function handleFaceTrackingStatus(event) {
@@ -45,8 +48,8 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
           x: videoWidth/2,
           y: videoHeight/2,
           width: videoWidth/3,
-          height: videoHeight/3,
-          angle: 0,
+          height: videoHeight/2,
+          angle: Math.PI/2,
         }
         faceFound(face);
       }
@@ -65,7 +68,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       motiondetector = new blobMotionDetector();
 
       htracker = new headtrackr.Tracker({
-        ui : false, calcAngles : true,
+        ui : false, calcAngles : false,
       });
       htrackerCanvas = document.createElement('canvas');
       htracker.init(videoInput, htrackerCanvas);
