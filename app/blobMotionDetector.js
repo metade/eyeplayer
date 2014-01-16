@@ -69,7 +69,10 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill"], fu
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
 
+    // document.body.insertBefore(canvas, document.body.childNodes[0]);
+
     this.detect = function(image) {
+      return [];
       if (!lastImage) lastImage = image;
 
       canvas.width = image.width;
@@ -78,8 +81,12 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill"], fu
       var tmpImage = ctx.getImageData(0, 0, image.width, image.height);
       blendDifference(tmpImage, image, lastImage);
 
+      lastImage = image;
+
       gaussFilter(tmpImage, 5);
       thresholdImage(tmpImage, { r: 255, g: 255, b: 255, a: 255});
+
+      ctx.putImageData(tmpImage, 0, 0);
 
       var blobs = detectBlobs(tmpImage);
 

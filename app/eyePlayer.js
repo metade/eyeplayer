@@ -6,7 +6,8 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
     var htracker, htrackerCanvas,
       video, videoWidth, videoHeight,
       canvas, ctx,
-      motiondetector;
+      motiondetector,
+      glassesImg;
 
     function drawBox(box, colour) {
       ctx.save();
@@ -15,6 +16,30 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       if (box.angle) ctx.rotate(box.angle-(Math.PI/2));
       ctx.strokeRect((-(box.width/2)) >> 0,
         (-(box.height/2)) >> 0, box.width, box.height);
+      ctx.restore();
+    }
+
+    function drawFace(face) {
+      ctx.save();
+      ctx.translate(face.x, face.y)
+      if (face.angle) ctx.rotate(face.angle-(Math.PI/2));
+      ctx.strokeStyle = '#000000';
+
+      ctx.beginPath();
+      ctx.lineWidth = face.width/20;
+      ctx.arc(0, 0, face.width/2, 0, Math.PI*2);
+      ctx.closePath()
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function drawEyes(eyes) {
+      ctx.save();
+      ctx.translate(eyes.x, eyes.y)
+      if (eyes.angle) ctx.rotate(eyes.angle-(Math.PI/2));
+      var w = eyes.width * 0.8;
+      ctx.drawImage(glassesImg, -w, -w, w*2, w*2);
       ctx.restore();
     }
 
@@ -29,13 +54,17 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
         angle: event.angle
       };
 
+      ctx.clearRect(0, 0, videoWidth, videoHeight );
+      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
+
       var frame = ctx.getImageData(0, 0, videoWidth, videoHeight);
       blobs = motiondetector.detect(frame);
 
-      ctx.clearRect(0, 0, videoWidth, videoHeight );
-      ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
       drawBox(event, '#00CC00');
       drawBox(eyes, '#CC0000');
+
+      drawFace(event);
+      drawEyes(eyes);
 
       for (var i=0; i<blobs.length; i++) {
         drawBox(blobs[i], '#0000CC');
@@ -67,8 +96,13 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
 
       motiondetector = new blobMotionDetector();
 
+      glassesImg = new Image;
+      glassesImg.src = "assets/glasses.svg";
+      faceImg = new Image;
+      faceImg.src = "assets/face.svg";
+
       htracker = new headtrackr.Tracker({
-        ui : false, calcAngles : false,
+        ui : false, calcAngles : true,
       });
       htrackerCanvas = document.createElement('canvas');
       htracker.init(videoInput, htrackerCanvas);
