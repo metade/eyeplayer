@@ -64,33 +64,42 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill"], fu
     return blobs;
   }
 
+  function foo() {
+
+  }
+
   return function blobMotionDetector() {
-    var lastImage;
+    var lastImage, diffImage;
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
 
-    // document.body.insertBefore(canvas, document.body.childNodes[0]);
+    document.body.insertBefore(canvas, document.body.childNodes[0]);
 
-    this.detect = function(image) {
-      return [];
+    this.detectInBox = function(box) {
+      ctx.clearRect(0, 0, diffImage.width, diffImage.height);
+      ctx.putImageData(diffImage, 0, 0);
+      var areaImage = ctx.getImageData(box.x, box.y, box.width, box.height);
+
+      gaussFilter(areaImage, 5);
+      thresholdImage(areaImage, { r: 255, g: 255, b: 255, a: 255});
+
+      ctx.putImageData(areaImage, 0, 0);
+
+      var blobs = detectBlobs(areaImage);
+
+      return blobs;
+    }
+
+    this.tick = function(image) {
       if (!lastImage) lastImage = image;
 
       canvas.width = image.width;
       canvas.height = image.height;
       ctx.clearRect(0, 0, image.width, image.height);
-      var tmpImage = ctx.getImageData(0, 0, image.width, image.height);
-      blendDifference(tmpImage, image, lastImage);
+      diffImage = ctx.getImageData(0, 0, image.width, image.height);
+      blendDifference(diffImage, image, lastImage);
 
       lastImage = image;
-
-      gaussFilter(tmpImage, 5);
-      thresholdImage(tmpImage, { r: 255, g: 255, b: 255, a: 255});
-
-      ctx.putImageData(tmpImage, 0, 0);
-
-      var blobs = detectBlobs(tmpImage);
-
-      return blobs;
     };
   }
 });
