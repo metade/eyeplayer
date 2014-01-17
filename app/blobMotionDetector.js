@@ -1,7 +1,7 @@
 define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cropImageData"], function(blendDifference, gaussFilter, floodfill, cropImageData) {
   function indexToXandY(image, index) {
-    x = index/4 % image.width;
-    y = Math.floor(index/4 / image.width);
+    var x = index/4 % image.width;
+    var y = Math.floor(index/4 / image.width);
     return [x, y];
   }
 
@@ -23,22 +23,22 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
   }
 
   function detectBlobByColour(image, colour) {
-    data = image.data;
-    minX = image.width, minY = image.height, maxX = 0, maxY = 0;
+    var data = image.data;
+    var minX = image.width, minY = image.height, maxX = 0, maxY = 0;
     for (var i=0; i<image.data.length; i+=4) {
-      if (data[i] == colour.r && data[i+1] == colour.g && data[i+2] == colour.b) {
-        xy = indexToXandY(image, i);
-        x = xy[0], y = xy[1];
+      if (data[i] === colour.r && data[i+1] === colour.g && data[i+2] === colour.b) {
+        var xy = indexToXandY(image, i);
+        var x = xy[0], y = xy[1];
 
-        if (x<minX) minX = x;
-        if (x>maxX) maxX = x;
-        if (y<minY) minY = y;
-        if (y>maxY) maxY = y;
+        if (x<minX) { minX = x; }
+        if (x>maxX) { maxX = x; }
+        if (y<minY) { minY = y; }
+        if (y>maxY) { maxY = y; }
       }
     }
     if (maxX > minX && maxY > minY) {
-      w = maxX - minX, h = maxY - minY;
-      return { x: minX, y: minY, width: w, height: h, area: w * h }
+      var w = maxX - minX, h = maxY - minY;
+      return { x: minX, y: minY, width: w, height: h, area: w * h };
     } else {
       return null;
     }
@@ -52,11 +52,11 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
     var blobs = [];
 
     for (var i=0; i<image.data.length; i+=4) {
-      xy = indexToXandY(image, i);
+      var xy = indexToXandY(image, i);
 
-      if (data[i] == blobColour.r && data[i+1] == blobColour.g && data[i+2] == blobColour.b) {
+      if (data[i] === blobColour.r && data[i+1] === blobColour.g && data[i+2] === blobColour.b) {
         floodfill(image, xy[0], xy[1], fillColour, 1);
-        blob = detectBlobByColour(image, fillColour);
+        var blob = detectBlobByColour(image, fillColour);
         if (blob) { blobs.push(blob); }
         floodfill(image, xy[0], xy[1], processedColour, 1);
       }
@@ -76,10 +76,10 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
       thresholdImage(areaImage, { r: 255, g: 255, b: 255, a: 255});
 
       return detectBlobs(areaImage);
-    }
+    };
 
     this.tick = function(image) {
-      if (!lastImage) lastImage = image;
+      if (!lastImage) { lastImage = image; }
 
       canvas.width = image.width;
       canvas.height = image.height;
@@ -89,5 +89,5 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
 
       lastImage = image;
     };
-  }
+  };
 });

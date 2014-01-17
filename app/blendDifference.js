@@ -9,7 +9,10 @@ define("blendDifference", [], function() {
       return (value ^ (value >> 31)) - (value >> 31);
     }
     function differenceAccuracy(target, data1, data2) {
-      if (data1.length != data2.length) return null;
+      if (data1.length !== data2.length) {
+        return null;
+      }
+
       var i = 0;
       while (i < (data1.length * 0.25)) {
         var average1 = (data1[4*i] + data1[4*i+1] + data1[4*i+2]) / 3;
@@ -23,12 +26,12 @@ define("blendDifference", [], function() {
       }
       return true;
     }
-    resultData = result.data, aData = a.data, bData = b.data;
+    var resultData = result.data, aData = a.data, bData = b.data;
     if (differenceAccuracy(resultData, aData, bData)) {
       result.data = resultData;
       return true;
     } else {
       return false;
     }
-  }
+  };
 });

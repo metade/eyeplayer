@@ -1,7 +1,4 @@
-// to depend on a bower installed component:
-// define(['bower_components/componentName/file'])
-
-define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, blobMotionDetector) {
+define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, BlobMotionDetector) {
   return function eyePlayer() {
     var htracker, htrackerCanvas,
       video, videoWidth, videoHeight,
@@ -18,8 +15,8 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       ctx.save();
       ctx.strokeStyle = colour;
       ctx.strokeRect(box.x-1, box.y-1, 3, 3);
-      ctx.translate(box.x, box.y)
-      if (box.angle) ctx.rotate(box.angle);
+      ctx.translate(box.x, box.y);
+      if (box.angle) { ctx.rotate(box.angle); }
       ctx.strokeRect((-(box.width/2)) >> 0,
         (-(box.height/2)) >> 0, box.width, box.height);
       ctx.restore();
@@ -27,14 +24,14 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
 
     function drawFace(face) {
       ctx.save();
-      ctx.translate(face.x, face.y)
-      if (face.angle) ctx.rotate(face.angle);
+      ctx.translate(face.x, face.y);
+      if (face.angle) { ctx.rotate(face.angle); }
       ctx.strokeStyle = '#000000';
 
       ctx.beginPath();
       ctx.lineWidth = face.width/20;
       ctx.arc(0, 0, face.width/2, 0, Math.PI*2);
-      ctx.closePath()
+      ctx.closePath();
       ctx.stroke();
 
       ctx.restore();
@@ -42,24 +39,23 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
 
     function drawEyes(eyes) {
       ctx.save();
-      ctx.translate(eyes.x, eyes.y)
-      if (eyes.angle) ctx.rotate(eyes.angle);
+      ctx.translate(eyes.x, eyes.y);
+      if (eyes.angle) { ctx.rotate(eyes.angle); }
       var w = eyes.width * 0.8;
       ctx.drawImage(glassesImg, -w, -w, w*2, w*2);
       ctx.restore();
     }
 
     function detectBlink(eyes, blobs) {
-      if (blobs.length == 2) {
-        if (blobs[0].x < blobs[1].x) {
-          left = blobs[0], right = blobs[1];
-        } else {
-          left = blobs[1], right = blobs[0];
+      if (blobs.length === 2) {
+        var left = blobs[0], right = blobs[1];
+        if (blobs[0].x > blobs[1].x) {
+          left = blobs[1]; right = blobs[0];
         }
 
-        leftIsLeft = left.x < eyes.width / 2;
-        rightIsRight = right.x > eyes.width / 2;
-        alignedVertically = Math.abs(left.y - right.y) < eyes.height/3;
+        var leftIsLeft = left.x < eyes.width / 2;
+        var rightIsRight = right.x > eyes.width / 2;
+        var alignedVertically = Math.abs(left.y - right.y) < eyes.height/3;
 
         if (leftIsLeft && rightIsRight && alignedVertically) {
           return true;
@@ -70,7 +66,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
 
     var countdown = 0;
     function faceFound(face) {
-      if (!videoWidth || !videoHeight) return;
+      if (!videoWidth || !videoHeight) { return; }
 
       var eyes = {
         x: face.x,
@@ -86,7 +82,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       var frame = ctx.getImageData(0, 0, videoWidth, videoHeight);
 
       motiondetector.tick(frame);
-      blobs = motiondetector.detectInBox(eyes);
+      var blobs = motiondetector.detectInBox(eyes);
 
       if (debug) {
         drawBox(face, '#00CC00');
@@ -102,48 +98,48 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       drawFace(face);
       drawEyes(eyes);
 
-      if (countdown == 0 && detectBlink(eyes, blobs)) {
-        console.log("BLINK!");
+      if (countdown === 0 && detectBlink(eyes, blobs)) {
         countdown = 5;
       }
       if (countdown > 0) {
         ctx.font="100px Georgia";
-        ctx.fillText("BLINK",0,videoHeight/2);
+        ctx.fillText("BLINK", 0, videoHeight/2);
         countdown -= 1;
       }
     }
 
     function handleFaceTrackingStatus(event) {
-      if (event.status != "found") {
+      if (event.status !== "found") {
         var face = {
           x: Math.floor(videoWidth/2),
           y: Math.floor(videoHeight/2),
           width: Math.floor(videoWidth/3),
           height: Math.floor(videoHeight/2),
           angle: 0.0,
-        }
+        };
         faceFound(face);
       }
     }
 
     function handleFaceTrackingEvent(event) {
-      if (event.detection == 'CS') {
+      if (event.detection === 'CS') {
         var face = {
           x: event.x,
           y: event.y,
           width: event.width,
           height: event.height,
           angle: event.angle - Math.PI/2
-        }
+        };
         faceFound(face);
       }
     }
 
     this.init = function(videoInput, canvasOverlay) {
-      video = videoInput, canvas = canvasOverlay;
+      video = videoInput;
+      canvas = canvasOverlay;
       ctx = canvas.getContext('2d');
 
-      motiondetector = new blobMotionDetector();
+      motiondetector = new BlobMotionDetector();
 
       glassesImg = new Image;
       glassesImg.src = "assets/glasses.svg";
@@ -169,6 +165,6 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       canvas.height = videoHeight;
       htrackerCanvas.width = videoWidth;
       htrackerCanvas.height = videoHeight;
-    }
+    };
   };
 });
