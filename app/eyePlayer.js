@@ -44,16 +44,16 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
       ctx.restore();
     }
 
-    function faceFound(event) {
+    function faceFound(face) {
       if (!videoWidth || !videoHeight) return;
 
-      event.angle -= Math.PI/2;
+      face.angle -= Math.PI/2;
       var eyes = {
-        x: event.x,
-        y: event.y,
-        width: Math.floor(event.width - event.width/5),
-        height: Math.floor(event.height/3),
-        angle: event.angle
+        x: face.x,
+        y: face.y,
+        width: Math.floor(face.width - face.width/5),
+        height: Math.floor(face.height/3),
+        angle: face.angle
       };
 
       ctx.clearRect(0, 0, videoWidth, videoHeight );
@@ -67,10 +67,10 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
       // motiondetector.tick(frame);
       // blobs = []; //motiondetector.detectInBox(eyes);
 
-      drawBox(event, '#00CC00');
+      drawBox(face, '#00CC00');
       drawBox(eyes, '#CC0000');
 
-      // drawFace(event);
+      // drawFace(face);
       // drawEyes(eyes);
 
       // for (var i=0; i<blobs.length; i++) {
@@ -80,7 +80,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
 
     function handleFaceTrackingStatus(event) {
       if (event.status != "found") {
-        face = {
+        var face = {
           x: videoWidth/2,
           y: videoHeight/2,
           width: videoWidth/3,
@@ -93,7 +93,14 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
 
     function handleFaceTrackingEvent(event) {
       if (event.detection == 'CS') {
-        faceFound(event);
+        var face = {
+          x: event.x,
+          y: event.y,
+          width: event.width,
+          height: event.height,
+          angle: event.angle
+        }
+        faceFound(face);
       }
     }
 
