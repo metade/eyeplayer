@@ -9,6 +9,11 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       motiondetector,
       glassesImg;
 
+    var debug = true;
+    if (debug) {
+      var debugLastLoop = new Date().getTime();
+    }
+
     function drawBox(box, colour) {
       ctx.save();
       ctx.strokeStyle = colour;
@@ -44,6 +49,26 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       ctx.restore();
     }
 
+    function detectBlink(eyes, blobs) {
+      if (blobs.length == 2) {
+        if (blobs[0].x < blobs[1].x) {
+          left = blobs[0], right = blobs[1];
+        } else {
+          left = blobs[1], right = blobs[0];
+        }
+
+        leftIsLeft = left.x < eyes.width / 2;
+        rightIsRight = right.x > eyes.width / 2;
+        alignedVertically = Math.abs(left.y - right.y) < eyes.height/3;
+
+        if (leftIsLeft && rightIsRight && alignedVertically) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    var countdown = 0;
     function faceFound(face) {
       if (!videoWidth || !videoHeight) return;
 
@@ -62,14 +87,29 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       motiondetector.tick(frame);
       blobs = motiondetector.detectInBox(eyes);
 
-      drawBox(face, '#00CC00');
-      drawBox(eyes, '#CC0000');
+      if (debug) {
+        drawBox(face, '#00CC00');
+        drawBox(eyes, '#CC0000');
+
+        var debugThisLoop = new Date().getTime();
+        var fps = 1000 / (debugThisLoop - debugLastLoop);
+
+        ctx.font="14px Georgia";
+        ctx.fillText(fps,5,15);
+        debugLastLoop = debugThisLoop;
+      }
 
       drawFace(face);
       drawEyes(eyes);
 
-      for (var i=0; i<blobs.length; i++) {
-        drawBox(blobs[i], '#0000CC');
+      if (countdown == 0 && detectBlink(eyes, blobs)) {
+        console.log("BLINK!");
+        countdown = 5;
+      }
+      if (countdown > 0) {
+        ctx.font="100px Georgia";
+        ctx.fillText("BLINK",0,videoHeight/2);
+        countdown -= 1;
       }
     }
 
