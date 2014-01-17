@@ -73,21 +73,13 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
 
-    // document.body.insertBefore(canvas, document.body.childNodes[0]);
-
     this.detectInBox = function(box) {
-      ctx.clearRect(0, 0, diffImage.width, diffImage.height);
-      ctx.putImageData(diffImage, 0, 0);
-      var areaImage = ctx.getImageData(box.x, box.y, box.width, box.height);
+      var areaImage = cropImageData(diffImage, box);
 
       gaussFilter(areaImage, 5);
       thresholdImage(areaImage, { r: 255, g: 255, b: 255, a: 255});
 
-      ctx.putImageData(areaImage, 0, 0);
-
-      var blobs = detectBlobs(areaImage);
-
-      return blobs;
+      return detectBlobs(areaImage);
     }
 
     this.tick = function(image) {

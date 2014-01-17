@@ -1,7 +1,7 @@
 // to depend on a bower installed component:
 // define(['bower_components/componentName/file'])
 
-define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], function(headtrackr, blobMotionDetector, cropImageData) {
+define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, blobMotionDetector) {
   return function eyePlayer() {
     var htracker, htrackerCanvas,
       video, videoWidth, videoHeight,
@@ -59,22 +59,18 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
       ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
 
       var frame = ctx.getImageData(0, 0, videoWidth, videoHeight);
-      foo = cropImageData(frame, eyes);
-
-      ctx.putImageData(foo, 10, 10);
-
-      // motiondetector.tick(frame);
-      // blobs = []; //motiondetector.detectInBox(eyes);
+      motiondetector.tick(frame);
+      blobs = motiondetector.detectInBox(eyes);
 
       drawBox(face, '#00CC00');
       drawBox(eyes, '#CC0000');
 
-      // drawFace(face);
-      // drawEyes(eyes);
+      drawFace(face);
+      drawEyes(eyes);
 
-      // for (var i=0; i<blobs.length; i++) {
-      //   drawBox(blobs[i], '#0000CC');
-      // }
+      for (var i=0; i<blobs.length; i++) {
+        drawBox(blobs[i], '#0000CC');
+      }
     }
 
     function handleFaceTrackingStatus(event) {
