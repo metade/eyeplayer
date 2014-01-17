@@ -1,7 +1,6 @@
 define("cropImageData", [], function() {
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
-  document.body.insertBefore(canvas, document.body.childNodes[0]);
 
   return function cropImageData(image, region) {
     canvas.width=image.width;
@@ -12,9 +11,6 @@ define("cropImageData", [], function() {
     if (region.angle) {
       diameter = Math.floor(Math.sqrt(region.width*region.width + region.height*region.height));
       radius = Math.floor(diameter/2);
-
-      ctx.strokeStyle = "#00FF00";
-      ctx.strokeRect(region.x-radius, region.y-radius, diameter, diameter);
 
       area = ctx.getImageData(region.x-radius, region.y-radius, diameter, diameter);
       ctx.clearRect(0, 0, diameter, diameter);
