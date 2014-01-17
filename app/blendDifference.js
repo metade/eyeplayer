@@ -23,6 +23,12 @@ define("blendDifference", [], function() {
       }
       return true;
     }
-    return differenceAccuracy(result.data, a.data, b.data);
+    resultData = result.data, aData = a.data, bData = b.data;
+    if (differenceAccuracy(resultData, aData, bData)) {
+      result.data = resultData;
+      return true;
+    } else {
+      return false;
+    }
   }
 });

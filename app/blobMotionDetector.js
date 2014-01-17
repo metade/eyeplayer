@@ -64,10 +64,6 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
     return blobs;
   }
 
-  function foo() {
-
-  }
-
   return function blobMotionDetector() {
     var lastImage, diffImage;
     var canvas = document.createElement('canvas');

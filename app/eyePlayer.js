@@ -84,6 +84,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
 
       var frame = ctx.getImageData(0, 0, videoWidth, videoHeight);
+
       motiondetector.tick(frame);
       blobs = motiondetector.detectInBox(eyes);
 
@@ -93,7 +94,6 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
 
         var debugThisLoop = new Date().getTime();
         var fps = 1000 / (debugThisLoop - debugLastLoop);
-
         ctx.font="14px Georgia";
         ctx.fillText(fps,5,15);
         debugLastLoop = debugThisLoop;
