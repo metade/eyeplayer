@@ -1,7 +1,7 @@
 // to depend on a bower installed component:
 // define(['bower_components/componentName/file'])
 
-define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, blobMotionDetector) {
+define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], function(headtrackr, blobMotionDetector, cropImageData) {
   return function eyePlayer() {
     var htracker, htrackerCanvas,
       video, videoWidth, videoHeight,
@@ -12,8 +12,9 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
     function drawBox(box, colour) {
       ctx.save();
       ctx.strokeStyle = colour;
+      ctx.strokeRect(box.x-1, box.y-1, 3, 3);
       ctx.translate(box.x, box.y)
-      if (box.angle) ctx.rotate(box.angle-(Math.PI/2));
+      if (box.angle) ctx.rotate(box.angle);
       ctx.strokeRect((-(box.width/2)) >> 0,
         (-(box.height/2)) >> 0, box.width, box.height);
       ctx.restore();
@@ -22,7 +23,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
     function drawFace(face) {
       ctx.save();
       ctx.translate(face.x, face.y)
-      if (face.angle) ctx.rotate(face.angle-(Math.PI/2));
+      if (face.angle) ctx.rotate(face.angle);
       ctx.strokeStyle = '#000000';
 
       ctx.beginPath();
@@ -37,7 +38,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
     function drawEyes(eyes) {
       ctx.save();
       ctx.translate(eyes.x, eyes.y)
-      if (eyes.angle) ctx.rotate(eyes.angle-(Math.PI/2));
+      if (eyes.angle) ctx.rotate(eyes.angle);
       var w = eyes.width * 0.8;
       ctx.drawImage(glassesImg, -w, -w, w*2, w*2);
       ctx.restore();
@@ -46,6 +47,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
     function faceFound(event) {
       if (!videoWidth || !videoHeight) return;
 
+      event.angle -= Math.PI/2;
       var eyes = {
         x: event.x,
         y: event.y,
@@ -58,18 +60,22 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, b
       ctx.drawImage(video, 0, 0, videoWidth, videoHeight);
 
       var frame = ctx.getImageData(0, 0, videoWidth, videoHeight);
-      motiondetector.tick(frame);
-      blobs = motiondetector.detectInBox(eyes);
+      foo = cropImageData(frame, eyes);
+
+      ctx.putImageData(foo, 10, 10);
+
+      // motiondetector.tick(frame);
+      // blobs = []; //motiondetector.detectInBox(eyes);
 
       drawBox(event, '#00CC00');
       drawBox(eyes, '#CC0000');
 
-      drawFace(event);
-      drawEyes(eyes);
+      // drawFace(event);
+      // drawEyes(eyes);
 
-      for (var i=0; i<blobs.length; i++) {
-        drawBox(blobs[i], '#0000CC');
-      }
+      // for (var i=0; i<blobs.length; i++) {
+      //   drawBox(blobs[i], '#0000CC');
+      // }
     }
 
     function handleFaceTrackingStatus(event) {

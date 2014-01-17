@@ -1,4 +1,4 @@
-define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill"], function(blendDifference, gaussFilter, floodfill) {
+define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cropImageData"], function(blendDifference, gaussFilter, floodfill, cropImageData) {
   function indexToXandY(image, index) {
     x = index/4 % image.width;
     y = Math.floor(index/4 / image.width);
@@ -73,7 +73,7 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill"], fu
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
 
-    document.body.insertBefore(canvas, document.body.childNodes[0]);
+    // document.body.insertBefore(canvas, document.body.childNodes[0]);
 
     this.detectInBox = function(box) {
       ctx.clearRect(0, 0, diffImage.width, diffImage.height);

@@ -10,7 +10,8 @@ define(['cropImageData'],function(cropImageData) {
 
     afterEach(function() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.putImageData(result, 0, 0);
+      ctx.putImageData(target, 0, 0);
+      ctx.putImageData(result, target.width+1, 0);
     });
 
     it("should crop a 3x3 region", function() {
@@ -30,9 +31,9 @@ define(['cropImageData'],function(cropImageData) {
       }
     });
 
-    function drawRegion(region) {
+    function drawRegion(width, height, region) {
       ctx.fillStyle = '#FFFFFF';
-      ctx.fillRect(0, 0, 100, 100);
+      ctx.fillRect(0, 0, width, height);
 
       ctx.save();
       ctx.translate(region.x, region.y)
@@ -45,7 +46,7 @@ define(['cropImageData'],function(cropImageData) {
       ctx.fillRect(-1, -1, 3, 3);
 
       ctx.restore();
-      return ctx.getImageData(0, 0, 100, 100);
+      return ctx.getImageData(0, 0, width, height);
     }
 
     it("should crop a 50x50 region", function() {
@@ -56,7 +57,7 @@ define(['cropImageData'],function(cropImageData) {
         height: 50,
         angle: Math.PI * Math.random()
       };
-      target = drawRegion(region);
+      target = drawRegion(100, 100, region);
       result = cropImageData(target, region);
 
       expect(result.width).toEqual(50);
@@ -76,15 +77,15 @@ define(['cropImageData'],function(cropImageData) {
       }
     });
 
-    it("should crop a 50x50 region at an angle", function() {
+    it("should crop a random region at an angle", function() {
       region = {
-        x: 25,
-        y: 25,
-        width: 10,
-        height: 25,
-        angle: Math.PI * Math.random()
+        x: 135, //50 + Math.floor(Math.random() * 200),
+        y: 50, //25 + Math.floor(Math.random() * 50),
+        width: Math.floor(Math.random() * 50),
+        height: Math.floor(Math.random() * 50),
+        angle: 0.35 //Math.PI * 2 * Math.random()
       };
-      target = drawRegion(region);
+      target = drawRegion(200, 100, region);
       result = cropImageData(target, region);
 
       expect(result.width).toEqual(region.width);
