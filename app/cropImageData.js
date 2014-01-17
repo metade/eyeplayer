@@ -8,7 +8,7 @@ define("cropImageData", [], function() {
     ctx.clearRect(0, 0, image.width, image.height);
     ctx.putImageData(image, 0, 0);
 
-    if (region.angle) {
+    if (region.angle != null) {
       diameter = Math.floor(Math.sqrt(region.width*region.width + region.height*region.height));
       radius = Math.floor(diameter/2);
 

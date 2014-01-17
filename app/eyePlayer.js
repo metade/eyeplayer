@@ -47,7 +47,6 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
     function faceFound(face) {
       if (!videoWidth || !videoHeight) return;
 
-      face.angle -= Math.PI/2;
       var eyes = {
         x: face.x,
         y: face.y,
@@ -81,11 +80,11 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
     function handleFaceTrackingStatus(event) {
       if (event.status != "found") {
         var face = {
-          x: videoWidth/2,
-          y: videoHeight/2,
-          width: videoWidth/3,
-          height: videoHeight/2,
-          angle: Math.PI/2,
+          x: Math.floor(videoWidth/2),
+          y: Math.floor(videoHeight/2),
+          width: Math.floor(videoWidth/3),
+          height: Math.floor(videoHeight/2),
+          angle: 0.0,
         }
         faceFound(face);
       }
@@ -98,7 +97,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector", "cropImageData"], funct
           y: event.y,
           width: event.width,
           height: event.height,
-          angle: event.angle
+          angle: event.angle - Math.PI/2
         }
         faceFound(face);
       }
