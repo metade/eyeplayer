@@ -22,7 +22,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: ['components/requirejs/require.js', '<%= concat.dist.dest %>'],
-        dest: 'dist/require.js'
+        dest: 'dist/eyeplayer.js'
       },
     },
     uglify: {
@@ -31,7 +31,7 @@ module.exports = function(grunt) {
       },
       dist: {
         src: '<%= concat.dist.dest %>',
-        dest: 'dist/require.min.js'
+        dest: 'dist/eyeplayer.min.js'
       },
     },
     jasmine: {
