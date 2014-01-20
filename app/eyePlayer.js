@@ -4,7 +4,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
       video, videoWidth, videoHeight,
       canvas, ctx,
       motiondetector,
-      glassesImg;
+      glassesImg, faceImg;
 
     var debug = true;
     if (debug) {
@@ -141,9 +141,9 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
 
       motiondetector = new BlobMotionDetector();
 
-      glassesImg = new Image;
+      glassesImg = new Image();
       glassesImg.src = "assets/glasses.svg";
-      faceImg = new Image;
+      faceImg = new Image();
       faceImg.src = "assets/face.svg";
 
       htracker = new headtrackr.Tracker({
