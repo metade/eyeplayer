@@ -96,9 +96,15 @@
       var ctx = canvasOutput.getContext('2d');
       var countdown = 0;
 
-      var glassesImg = new Image(), faceImg = new Image();
+      var glassesImg = new Image();
       glassesImg.src = "images/glasses.svg";
-      faceImg.src = "images/face.svg";
+
+      var sounds = {}, audioFiles = ['klaxon', 'bomb', 'wob', 'glass', 'rewind'];
+      for (var i=0; i<audioFiles.length; i++) {
+        name = audioFiles[i];
+        sounds[name] = new Audio();
+        sounds[name].src = "sounds/" + name + ".mp3";
+      }
 
       function drawFace(face) {
         ctx.save();
@@ -124,8 +130,15 @@
         ctx.restore();
       }
 
+      function playSoundIfPaused(name) {
+        if (sounds[name].paused) {
+          sounds[name].play();
+        }
+      }
+
       document.addEventListener('blinkEvent', function() {
         if (countdown == 0) {
+          playSoundIfPaused('wob');
           countdown = 5;
         }
       });
@@ -142,6 +155,15 @@
           if (event.regions[i] > 0) {
             ctx.font="10px Georgia";
             ctx.fillText(Math.floor(event.regions[i]), i*canvasOutput.width/8, 10);
+          }
+          if (event.regions[0] > 0) {
+            playSoundIfPaused('bomb');
+          }
+          if (event.regions[3] > 0 || event.regions[4] > 0) {
+            playSoundIfPaused('rewind');
+          }
+          if (event.regions[7] > 0) {
+            playSoundIfPaused('glass');
           }
         }
       });
