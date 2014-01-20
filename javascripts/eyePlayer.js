@@ -2699,7 +2699,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
     };
     this.resize = function() {
       videoWidth = video.offsetWidth;
-      videoHeight = video.offsetHeight;
+      videoHeight = (video.videoHeight/video.videoWidth) * videoWidth;
       canvas.width = videoWidth;
       canvas.height = videoHeight;
       htrackerCanvas.width = videoWidth;
