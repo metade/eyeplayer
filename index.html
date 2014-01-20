@@ -47,12 +47,35 @@
       <section id="main_content" class="inner">
         <h3>Demonstration</h3>
 
-        <p>Coming soon</p>
-
         <div id="videoContainer">
           <video id="inputVideo" autoplay></video>
           <canvas id="overlay"></canvas>
         </div>
+
+        <h3>Usage example</h3>
+
+        <pre><code>
+          &lt;script data-main="javascripts/eyeplayer" src="javascripts/require.js"&gt;&lt;/script&gt;
+          &lt;script type="text/javascript"&gt;
+            var videoInput = document.getElementById('inputVideo');
+            var canvasOutput = document.getElementById('overlay');
+
+            require(['eyePlayer'], function(eyePlayer) {
+              eyeplayer = new eyePlayer();
+              eyeplayer.init(videoInput, canvasOutput);
+              eyeplayer.start();
+            });
+
+            document.addEventListener('blinkEvent', function() {
+              /* DO SOMETHING FUN WHEN THE USER BLINKS */
+            });
+            document.addEventListener('eyeTrackedEvent', function(event) {
+              /* DO SOMETHING FUN WHEN THE USER'S HEAD IS FOUND */
+              console.log(event.face);
+              console.log(event.eyes);
+            });
+          &lt;/script&gt;
+        </code></pre>
 
       </section>
     </div>
