@@ -1,12 +1,12 @@
 define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, BlobMotionDetector) {
-  return function eyePlayer() {
+  return function eyePlayer(params) {
     var htracker, htrackerCanvas,
       video, videoWidth, videoHeight,
       canvas, ctx,
       motiondetector;
 
-    var debug = true;
-    if (debug) {
+    if (!params) { params = {}; }
+    if (params.debug) {
       var debugLastLoop = new Date().getTime();
     }
 
@@ -58,7 +58,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
       motiondetector.tick(frame);
       var blobs = motiondetector.detectInBox(eyes);
 
-      if (debug) {
+      if (params.debug) {
         drawBox(face, '#00CC00');
         drawBox(eyes, '#CC0000');
 
