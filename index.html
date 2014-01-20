@@ -7,6 +7,20 @@
     <meta name="description" content="Eyeplayer : Control stuff with your eyes" />
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <style>
+      canvas#overlay {
+        height: 240px;
+        position: absolute;
+      }
+      div#videoContainer {
+        height: 240px;
+        position: relative;
+      }
+      video {
+        height: 240px;
+        position: absolute;
+      }
+    </style>
 
     <title>Eyeplayer</title>
   </head>
@@ -50,5 +64,17 @@
         <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
       </footer>
     </div>
+
+    <script data-main="dist/eyeplayer" src="bower_components/requirejs/require.js"></script>
+    <script type="text/javascript">
+       var videoInput = document.getElementById('inputVideo');
+       var canvasOutput = document.getElementById('overlay');
+
+       require(['eyePlayer'], function(eyePlayer) {
+         eyeplayer = new eyePlayer();
+         eyeplayer.init(videoInput, canvasOutput);
+         eyeplayer.start();
+       });
+     </script>
   </body>
 </html>
