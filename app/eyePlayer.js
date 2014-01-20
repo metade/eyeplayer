@@ -57,6 +57,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
 
       motiondetector.tick(frame);
       var blobs = motiondetector.detectInBox(eyes);
+      var regions = motiondetector.regions();
 
       if (params.debug) {
         drawBox(face, '#00CC00');
@@ -79,6 +80,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
       evt.initEvent("eyeTrackedEvent", true, true);
       evt.face = face;
       evt.eyes = eyes;
+      evt.regions = regions;
       document.dispatchEvent(evt);
     }
 

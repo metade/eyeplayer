@@ -81,7 +81,7 @@
     });
 
     require(['eyePlayer'], function(eyePlayer) {
-      eyeplayer = new eyePlayer();
+      eyeplayer = new eyePlayer({ debug: true });
       eyeplayer.init(videoInput, canvasOutput);
       eyeplayer.start();
     });

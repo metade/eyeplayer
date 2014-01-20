@@ -78,6 +78,28 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
       return detectBlobs(areaImage);
     };
 
+    this.regions = function() {
+      var regs = [0,0,0,0,0,0,0,0];
+      var regionHeight = diffImage.height / 5;
+      var regionWidth = diffImage.width / 8;
+
+      var r, data = diffImage.data;
+      for (var i=0; i < data.length; i+=4) {
+        var xy = indexToXandY(diffImage, i);
+        var x = xy[0], y = xy[1];
+        if (y >= regionHeight) { break; }
+
+        r = Math.floor(x / regionWidth);
+        regs[r] += ((data[i] + data[i+1] + data[i+2]) / 3);
+      }
+
+      for (r=0; r<8; r++) {
+        regs[r] /= (regionHeight * regionWidth);
+        if (regs[r] < 10) { regs[r] = -1; }
+      }
+      return regs;
+    };
+
     this.tick = function(image) {
       if (!lastImage) { lastImage = image; }
 
