@@ -138,6 +138,12 @@
           ctx.fillText("BLINK", 0, canvasOutput.height/2);
           countdown -= 1;
         }
+        for (var i=0; i<event.regions.length; i++) {
+          if (event.regions[i] > 0) {
+            ctx.font="10px Georgia";
+            ctx.fillText(Math.floor(event.regions[i]), i*canvasOutput.width/8, 10);
+          }
+        }
       });
 
       require(['eyePlayer'], function(eyePlayer) {
