@@ -65,16 +65,63 @@
       </footer>
     </div>
 
-    <script data-main="dist/eyeplayer" src="bower_components/requirejs/require.js"></script>
+    <script data-main="javascripts/eyeplayer" src="bower_components/requirejs/require.js"></script>
     <script type="text/javascript">
-       var videoInput = document.getElementById('inputVideo');
-       var canvasOutput = document.getElementById('overlay');
+      var videoInput = document.getElementById('inputVideo');
+      var canvasOutput = document.getElementById('overlay');
 
-       require(['eyePlayer'], function(eyePlayer) {
-         eyeplayer = new eyePlayer();
-         eyeplayer.init(videoInput, canvasOutput);
-         eyeplayer.start();
-       });
+      var ctx = canvasOutput.getContext('2d');
+      var countdown = 0;
+
+      var glassesImg = new Image(), faceImg = new Image();
+      glassesImg.src = "images/glasses.svg";
+      faceImg.src = "images/face.svg";
+
+      function drawFace(face) {
+        ctx.save();
+        ctx.translate(face.x, face.y);
+        if (face.angle) { ctx.rotate(face.angle); }
+        ctx.strokeStyle = '#000000';
+
+        ctx.beginPath();
+        ctx.lineWidth = face.width/20;
+        ctx.arc(0, 0, face.width/2, 0, Math.PI*2);
+        ctx.closePath();
+        ctx.stroke();
+
+        ctx.restore();
+      }
+
+      function drawEyes(eyes) {
+        ctx.save();
+        ctx.translate(eyes.x, eyes.y);
+        if (eyes.angle) { ctx.rotate(eyes.angle); }
+        var w = eyes.width * 0.8;
+        ctx.drawImage(glassesImg, -w, -w, w*2, w*2);
+        ctx.restore();
+      }
+
+      document.addEventListener('blinkEvent', function() {
+        if (countdown == 0) {
+          countdown = 5;
+        }
+      });
+      document.addEventListener('eyeTrackedEvent', function(event) {
+        drawFace(event.face);
+        drawEyes(event.eyes);
+
+        if (countdown > 0) {
+          ctx.font="100px Georgia";
+          ctx.fillText("BLINK", 0, canvasOutput.height/2);
+          countdown -= 1;
+        }
+      });
+
+      require(['eyePlayer'], function(eyePlayer) {
+        eyeplayer = new eyePlayer();
+        eyeplayer.init(videoInput, canvasOutput);
+        eyeplayer.start();
+      });
      </script>
   </body>
 </html>

@@ -2549,8 +2549,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
     var htracker, htrackerCanvas,
       video, videoWidth, videoHeight,
       canvas, ctx,
-      motiondetector,
-      glassesImg, faceImg;
+      motiondetector;
 
     var debug = true;
     if (debug) {
@@ -2565,30 +2564,6 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
       if (box.angle) { ctx.rotate(box.angle); }
       ctx.strokeRect((-(box.width/2)) >> 0,
         (-(box.height/2)) >> 0, box.width, box.height);
-      ctx.restore();
-    }
-
-    function drawFace(face) {
-      ctx.save();
-      ctx.translate(face.x, face.y);
-      if (face.angle) { ctx.rotate(face.angle); }
-      ctx.strokeStyle = '#000000';
-
-      ctx.beginPath();
-      ctx.lineWidth = face.width/20;
-      ctx.arc(0, 0, face.width/2, 0, Math.PI*2);
-      ctx.closePath();
-      ctx.stroke();
-
-      ctx.restore();
-    }
-
-    function drawEyes(eyes) {
-      ctx.save();
-      ctx.translate(eyes.x, eyes.y);
-      if (eyes.angle) { ctx.rotate(eyes.angle); }
-      var w = eyes.width * 0.8;
-      ctx.drawImage(glassesImg, -w, -w, w*2, w*2);
       ctx.restore();
     }
 
@@ -2610,7 +2585,6 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
       return false;
     }
 
-    var countdown = 0;
     function faceFound(face) {
       if (!videoWidth || !videoHeight) { return; }
 
@@ -2641,17 +2615,17 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
         debugLastLoop = debugThisLoop;
       }
 
-      drawFace(face);
-      drawEyes(eyes);
-
-      if (countdown === 0 && detectBlink(eyes, blobs)) {
-        countdown = 5;
+      var evt;
+      if (detectBlink(eyes, blobs)) {
+        evt = document.createEvent("Event");
+        evt.initEvent("blinkEvent", true, true);
+        document.dispatchEvent(evt);
       }
-      if (countdown > 0) {
-        ctx.font="100px Georgia";
-        ctx.fillText("BLINK", 0, videoHeight/2);
-        countdown -= 1;
-      }
+      evt = document.createEvent("Event");
+      evt.initEvent("eyeTrackedEvent", true, true);
+      evt.face = face;
+      evt.eyes = eyes;
+      document.dispatchEvent(evt);
     }
 
     function handleFaceTrackingStatus(event) {
@@ -2686,11 +2660,6 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
       ctx = canvas.getContext('2d');
 
       motiondetector = new BlobMotionDetector();
-
-      glassesImg = new Image();
-      glassesImg.src = "assets/glasses.svg";
-      faceImg = new Image();
-      faceImg.src = "assets/face.svg";
 
       htracker = new headtrackr.Tracker({
         ui : false, calcAngles : true,
