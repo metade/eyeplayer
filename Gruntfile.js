@@ -13,7 +13,7 @@ module.exports = function(grunt) {
       ' Licensed <%= _.pluck(pkg.licenses, "type").join(", ") %> */\n',
     // Task configuration.
     clean: {
-      files: ['dist']
+      files: ['dist', 'dist2']
     },
     concat: {
       options: {
@@ -24,6 +24,10 @@ module.exports = function(grunt) {
         src: ['components/requirejs/require.js', '<%= concat.dist.dest %>'],
         dest: 'dist/eyePlayer.js'
       },
+      dist2: {
+        src: ['components/requirejs/require.js', '<%= concat.dist2.dest %>'],
+        dest: 'dist/motionPlayer.js'
+      },
     },
     uglify: {
       options: {
@@ -32,6 +36,10 @@ module.exports = function(grunt) {
       dist: {
         src: '<%= concat.dist.dest %>',
         dest: 'dist/eyePlayer.min.js'
+      },
+      dist2: {
+        src: '<%= concat.dist2.dest %>',
+        dest: 'dist/motionPlayer.min.js'
       },
     },
     jasmine: {
@@ -72,13 +80,21 @@ module.exports = function(grunt) {
       },
     },
     requirejs: {
-      compile: {
+      dist: {
         options: {
           name: 'config',
           mainConfigFile: 'app/config.js',
           out: '<%= concat.dist.dest %>',
           optimize: 'none'
-        }
+        },
+      },
+      dist2: {
+        options: {
+          name: 'config2',
+          mainConfigFile: 'app/config2.js',
+          out: '<%= concat.dist2.dest %>',
+          optimize: 'none'
+        },
       }
     },
     connect: {
