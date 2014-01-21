@@ -72,7 +72,7 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
 
     this.start = function() {
       startVideo();
-      tick();
+      window.setTimeout(tick, 1000);
     };
   };
 });
