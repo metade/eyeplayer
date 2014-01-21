@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Eyeplayer : Control stuff with your webcam" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+    <style>
+      div#videoContainer {
+        height: 480px;
+        max-width: 1024px;
+        position: relative;
+      }
+      canvas#overlay {
+        width: 100%;
+        position: absolute;
+        transform: rotateY(180deg);
+        -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+        -moz-transform:rotateY(180deg);
+      }
+      video {
+        width: 100%;
+        position: absolute;
+      }
+    </style>
+
+    <title>Eyeplayer</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/sidekickstudios/eyeplayer">View on GitHub</a>
+
+          <h1 id="project_title">Eyeplayer</h1>
+          <h2 id="project_tagline">Control stuff with your webcam</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/sidekickstudios/eyeplayer/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/sidekickstudios/eyeplayer/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h3>Demonstration</h3>
+
+        <div id="videoContainer">
+          <video id="inputVideo" autoplay></video>
+          <canvas id="overlay"></canvas>
+        </div>
+
+        <h3>Usage example</h3>
+
+        <pre><code>
+          ...
+        </code></pre>
+
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Eyeplayer maintained by <a href="https://github.com/sidekickstudios">sidekickstudios</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    <script data-main="javascripts/motionPlayer.min.js" src="javascripts/require.js"></script>
+    <script type="text/javascript">
+      require(['motionPlayer'], function(motionPlayer) {
+        var video = document.getElementById('inputVideo');
+        var canvas = document.getElementById('overlay');
+        var motionplayer = new motionPlayer({ debug: true });
+        var ctx = canvas.getContext('2d');
+
+        motionplayer.init(video, canvas);
+        motionplayer.start();
+
+        motionplayer.setFilter(function(image) {
+          data = image.data;
+          for (var i=0; i<data.length; i+=4) {
+            data[i+3] = 50;
+          }
+        });
+
+        document.addEventListener('motionEvent', function(event) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(event.image, 0, 0, canvas.width, canvas.height);
+
+          for (var i=0; i<event.regions.length; i++) {
+            if (event.regions[i] > 0) {
+              ctx.save();
+              ctx.translate(i*canvas.width/8, 10);
+              ctx.scale(-1,1);
+              ctx.font="10px Georgia";
+              ctx.fillText(Math.floor(event.regions[i]), 0, 0);
+              ctx.restore();
+            }
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
