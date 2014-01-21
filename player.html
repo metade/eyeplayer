@@ -9,8 +9,8 @@
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
     <style>
       div#videoContainer {
-        height: 480px;
         max-width: 1024px;
+        height: 480px;
         position: relative;
       }
       canvas#overlay {
@@ -51,6 +51,7 @@
       <section id="main_content" class="inner">
         <h3>Demonstration</h3>
 
+        <div id="mediaPlayer" style="width: 100%; height: 200px;"></div>
         <div id="videoContainer">
           <video id="inputVideo" autoplay></video>
           <canvas id="overlay"></canvas>
@@ -75,11 +76,36 @@
 
     <script data-main="javascripts/motionPlayer.min.js" src="javascripts/require.js"></script>
     <script type="text/javascript">
+      var mediaPlayer;
+      var bbcRequireMap = {
+        "jquery-1.9":"http://static.bbci.co.uk/frameworks/jquery/0.3.0/sharedmodules/jquery-1.9.1",
+        "swfobject-2":"http://static.bbci.co.uk/frameworks/swfobject/0.1.10/sharedmodules/swfobject-2",
+        "bump-3":"http://emp.bbci.co.uk/emp/bump-3/bump-3"
+      }
+      require({ paths: bbcRequireMap, waitSeconds: 30 });
+      require(['bump-3'],function ($) {
+          var settings = {
+             product : 'iplayer',
+             playerProfile: 'smp',
+             responsive: true,
+             autoplay: true
+          }
+          mediaPlayer = $('#mediaPlayer').player(settings);
+          mediaPlayer.load('http://www.bbc.co.uk/iplayer/playlist/p01pp3y6');
+      });
+
       require(['motionPlayer'], function(motionPlayer) {
         var video = document.getElementById('inputVideo');
         var canvas = document.getElementById('overlay');
         var motionplayer = new motionPlayer({ debug: true });
         var ctx = canvas.getContext('2d');
+
+        var sounds = {}, audioFiles = ['klaxon', 'bomb', 'wob', 'glass', 'rewind'];
+        for (var i=0; i<audioFiles.length; i++) {
+          name = audioFiles[i];
+          sounds[name] = new Audio();
+          sounds[name].src = "sounds/" + name + ".mp3";
+        }
 
         motionplayer.init(video, canvas);
         motionplayer.start();
@@ -90,6 +116,19 @@
             data[i+3] = 50;
           }
         });
+
+        function playSoundIfPaused(name) {
+          if (sounds[name].paused) {
+            sounds[name].play();
+          }
+        }
+        function rewind() {
+          if (sounds['rewind'].paused) {
+            var time = mediaPlayer.currentTime();
+            mediaPlayer.currentTime(time - 30);
+            sounds['rewind'].play();
+          }
+        }
 
         document.addEventListener('motionEvent', function(event) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -104,6 +143,10 @@
               ctx.font="10px Georgia";
               ctx.fillText(Math.floor(event.regions[i]), 0, 0);
               ctx.restore();
+
+              if (i===0) { playSoundIfPaused('bomb'); }
+              if (i===3 || i===4) { rewind(); }
+              if (i===7) { playSoundIfPaused('glass'); }
             }
           }
         });
