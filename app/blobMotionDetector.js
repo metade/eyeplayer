@@ -12,7 +12,7 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
       width: box.width * scale,
       height: box.height * scale,
       angle: box.angle
-    }
+    };
   }
 
   function thresholdImage(image, colour) {
@@ -88,7 +88,7 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
       thresholdImage(areaImage, { r: 255, g: 255, b: 255, a: 255});
 
       var blobs = detectBlobs(areaImage);
-      return blobs.map(function(b) { return scaleBox(b, 1/scale); })
+      return blobs.map(function(b) { return scaleBox(b, 1/scale); });
     };
 
     this.regions = function() {
@@ -114,7 +114,7 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
     };
 
     this.tick = function(image, width, height) {
-      if (canvas.width != WIDTH) {
+      if (canvas.width !== WIDTH) {
         scale = WIDTH / width;
         canvas.width = WIDTH;
         canvas.height = height * scale;
