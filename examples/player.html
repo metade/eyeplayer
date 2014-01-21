@@ -1,0 +1,71 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>An awesome requirejs app</title>
+  <script data-main="../app/config" src="../bower_components/requirejs/require.js"></script>
+
+  <style>
+    div#videoContainer {
+      max-width: 800px;
+      position: relative;
+    }
+    canvas#overlay {
+      width: 100%;
+      position: absolute;
+      transform: rotateY(180deg);
+      -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+      -moz-transform:rotateY(180deg);
+    }
+    video {
+      width: 100%;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <h1>eyeplayer running!</h1>
+  <div id="videoContainer">
+    <video id="inputVideo" autoplay></video>
+    <canvas id="overlay"></canvas>
+  </div>
+  <div id="debug">
+  </div>
+
+  <script type="text/javascript">
+    require(['motionPlayer'], function(motionPlayer) {
+      var video = document.getElementById('inputVideo');
+      var canvas = document.getElementById('overlay');
+      var motionplayer = new motionPlayer({ debug: true });
+      var ctx = canvas.getContext('2d');
+
+      motionplayer.init(video, canvas);
+      motionplayer.start();
+
+      motionplayer.setFilter(function(image) {
+        data = image.data;
+        for (var i=0; i<data.length; i+=4) {
+          data[i+3] = 50;
+        }
+      });
+
+      document.addEventListener('motionEvent', function(event) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(event.image, 0, 0, canvas.width, canvas.height);
+
+        for (var i=0; i<event.regions.length; i++) {
+          if (event.regions[i] > 0) {
+            ctx.save();
+            ctx.translate(i*canvas.width/8, 10);
+            ctx.scale(-1,1);
+            ctx.font="10px Georgia";
+            ctx.fillText(Math.floor(event.regions[i]), 0, 0);
+            ctx.restore();
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>

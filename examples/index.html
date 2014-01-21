@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>An awesome requirejs app</title>
-  <script data-main="app/config" src="bower_components/requirejs/require.js"></script>
+  <script data-main="../app/config" src="../bower_components/requirejs/require.js"></script>
 
   <style>
     div#videoContainer {
@@ -37,8 +37,8 @@
     var countdown = 0;
 
     var glassesImg = new Image(), faceImg = new Image();
-    glassesImg.src = "assets/glasses.svg";
-    faceImg.src = "assets/face.svg";
+    glassesImg.src = "../assets/glasses.svg";
+    faceImg.src = "../assets/face.svg";
 
     function drawFace(face) {
       ctx.save();
