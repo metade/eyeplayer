@@ -94,7 +94,7 @@
           mediaPlayer.load('http://www.bbc.co.uk/iplayer/playlist/p01pp3y6');
       });
 
-      require(['motionPlayer'], function(motionPlayer) {
+      require(['motionPlayer', 'howler.min'], function(motionPlayer, Howler) {
         var video = document.getElementById('inputVideo');
         var canvas = document.getElementById('overlay');
         var motionplayer = new motionPlayer({ debug: true });
@@ -103,8 +103,7 @@
         var sounds = {}, audioFiles = ['klaxon', 'bomb', 'wob', 'glass', 'rewind'];
         for (var i=0; i<audioFiles.length; i++) {
           name = audioFiles[i];
-          sounds[name] = new Audio();
-          sounds[name].src = "sounds/" + name + ".mp3";
+          sounds[name] = new Howl({ urls: ["sounds/" + name + ".mp3"] });
         }
 
         var glassImg = new Image(), bombImg = new Image(), rewindImg = new Image();
@@ -123,12 +122,12 @@
         });
 
         function playSoundIfPaused(name) {
-          if (sounds[name].paused) {
+          if (sounds[name].pos() === 0) {
             sounds[name].play();
           }
         }
         function rewind() {
-          if (sounds['rewind'].paused) {
+          if (sounds['rewind'].pos() === 0) {
             var time = mediaPlayer.currentTime();
             mediaPlayer.currentTime(time - 30);
             sounds['rewind'].play();

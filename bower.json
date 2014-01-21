@@ -1,0 +1,6 @@
+{
+  "name": "eyeplayer",
+  "dependencies": {
+    "howler": "~1.1"
+  }
+}
