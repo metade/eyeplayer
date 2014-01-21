@@ -55,7 +55,7 @@ define("eyePlayer", ["headtrackr", "blobMotionDetector"], function(headtrackr, B
 
       var frame = ctx.getImageData(0, 0, videoWidth, videoHeight);
 
-      motiondetector.tick(frame);
+      motiondetector.tick(video, videoWidth, videoHeight);
       var blobs = motiondetector.detectInBox(eyes);
       var regions = motiondetector.regions();
 

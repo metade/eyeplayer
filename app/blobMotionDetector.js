@@ -5,6 +5,16 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
     return [x, y];
   }
 
+  function scaleBox(box, scale) {
+    return {
+      x: box.x * scale,
+      y: box.y * scale,
+      width: box.width * scale,
+      height: box.height * scale,
+      angle: box.angle
+    }
+  }
+
   function thresholdImage(image, colour) {
     var data = image.data;
     for (var i=0; i<image.data.length; i+=4) {
@@ -65,17 +75,20 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
   }
 
   return function blobMotionDetector() {
+    var WIDTH = 320;
+    var scale;
     var lastImage, diffImage;
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
 
     this.detectInBox = function(box) {
-      var areaImage = cropImageData(diffImage, box);
+      var areaImage = cropImageData(diffImage, scaleBox(box, scale));
 
       gaussFilter(areaImage, 5);
       thresholdImage(areaImage, { r: 255, g: 255, b: 255, a: 255});
 
-      return detectBlobs(areaImage);
+      var blobs = detectBlobs(areaImage);
+      return blobs.map(function(b) { return scaleBox(b, 1/scale); })
     };
 
     this.regions = function() {
@@ -100,16 +113,22 @@ define("blobMotionDetector", ["blendDifference", "gaussFilter", "floodfill", "cr
       return regs;
     };
 
-    this.tick = function(image) {
-      if (!lastImage) { lastImage = image; }
+    this.tick = function(image, width, height) {
+      if (canvas.width != WIDTH) {
+        scale = WIDTH / width;
+        canvas.width = WIDTH;
+        canvas.height = height * scale;
+      }
 
-      canvas.width = image.width;
-      canvas.height = image.height;
-      ctx.clearRect(0, 0, image.width, image.height);
-      diffImage = ctx.getImageData(0, 0, image.width, image.height);
-      blendDifference(diffImage, image, lastImage);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      diffImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      var myImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
-      lastImage = image;
+      if (!lastImage) { lastImage = myImage; }
+      blendDifference(diffImage, myImage, lastImage);
+
+      lastImage = myImage;
     };
   };
 });
