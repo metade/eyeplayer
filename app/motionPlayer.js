@@ -1,11 +1,12 @@
 define("motionPlayer", ["motionDetector"], function(MotionDetector) {
   return function motionPlayer(params) {
+    if (!params) { params = {}; }
     var video, canvas, ctx, motiondetector, filter;
 
     function startVideo() {
       var videoObj = { "video": true },
         errBack = function(error) {
-          console.log("Video capture error: ", error.code);
+          alert("Video capture error: ", error.code);
         };
 
       if(navigator.getUserMedia) {
@@ -38,7 +39,7 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
     })();
 
     function tick() {
-      diffImage = motiondetector.tick(video, filter);
+      var diffImage = motiondetector.tick(video, filter);
       var regions = motiondetector.regions();
 
       var evt = document.createEvent("Event");
@@ -47,7 +48,7 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
       evt.regions = regions;
       document.dispatchEvent(evt);
 
-      requestAnimFrame(tick);
+      window.requestAnimFrame(tick);
     }
 
     this.setFilter = function(theFilter) {
@@ -63,8 +64,8 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
     };
 
     this.resize = function() {
-      videoWidth = video.offsetWidth;
-      videoHeight = (video.videoHeight/video.videoWidth) * videoWidth;
+      var videoWidth = video.offsetWidth;
+      var videoHeight = (video.videoHeight/video.videoWidth) * videoWidth;
       canvas.width = videoWidth;
       canvas.height = videoHeight;
     };
@@ -72,6 +73,6 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
     this.start = function() {
       startVideo();
       tick();
-    }
+    };
   };
 });

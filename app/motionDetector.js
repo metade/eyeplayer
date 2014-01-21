@@ -49,6 +49,6 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
       }
       ctx.putImageData(diffImage, 0, 0);
       return canvas;
-    }
+    };
   };
 });
