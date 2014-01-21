@@ -51,11 +51,11 @@
       <section id="main_content" class="inner">
         <h3>Demonstration</h3>
 
-        <div id="mediaPlayer" style="width: 100%; height: 200px;"></div>
         <div id="videoContainer">
           <video id="inputVideo" autoplay></video>
           <canvas id="overlay"></canvas>
         </div>
+        <div id="mediaPlayer" style="width: 100%; height: 100px;"></div>
 
         <h3>Usage example</h3>
 
@@ -107,9 +107,10 @@
           sounds[name].src = "sounds/" + name + ".mp3";
         }
 
-        var glassImg = new Image(), bombImg = new Image();
+        var glassImg = new Image(), bombImg = new Image(), rewindImg = new Image();
         bombImg.src = "images/bomb.svg";
         glassImg.src = "images/fragile.svg";
+        rewindImg.src = "images/fast-forward.svg";
 
         motionplayer.init(video, canvas);
         motionplayer.start();
@@ -139,8 +140,10 @@
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
           ctx.drawImage(event.image, 0, 0, canvas.width, canvas.height);
 
-          ctx.drawImage(bombImg, 0, 0, 100, 100);
-          ctx.drawImage(glassImg, canvas.width-100, 0, 100, 100);
+          var w = canvas.width / 8;
+          ctx.drawImage(bombImg, 0, 0, w, w);
+          ctx.drawImage(glassImg, canvas.width-w, 0, w, w);
+          ctx.drawImage(rewindImg, (canvas.width/2)-w, 0, w*2, w);
 
           for (var i=0; i<event.regions.length; i++) {
             if (event.regions[i] > 0) {
