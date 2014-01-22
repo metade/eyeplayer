@@ -177,17 +177,12 @@
         function playSoundIfPaused(name) {
           if (sounds[name].pos() === 0) {
             sounds[name].play();
-          }
-        }
-        function rewind() {
-          if (sounds['rewind'].pos() === 0) {
-            var time = mediaPlayer.currentTime();
-            mediaPlayer.currentTime(time - 30);
-            sounds['rewind'].play();
+            return true;
+          } else {
+            return false;
           }
         }
 
-        var regions = [];
         document.addEventListener('motionEvent', function(event) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -208,8 +203,22 @@
               ctx.restore();
 
               if (i===0) { playSoundIfPaused('bomb'); }
-              if (i===3 || i===4) { rewind(); }
               if (i===7) { playSoundIfPaused('glass'); }
+            }
+          }
+
+          var regions = event.regions;
+          if (regions[3] > 0 && regions[4] > 0) {
+            if (regions[3] > regions[4]) {
+              if (playSoundIfPaused('rewind')) {
+                var time = mediaPlayer.currentTime();
+                mediaPlayer.currentTime(time - 30);
+              }
+            } else {
+              if (playSoundIfPaused('rewind')) {
+                var time = mediaPlayer.currentTime();
+                mediaPlayer.currentTime(time + 30);
+              }
             }
           }
         });
