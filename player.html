@@ -131,7 +131,7 @@
         function playEpisode(episode) {
           $('#episodes a').removeClass('playing');
           episode.addClass('playing');
-          mediaPlayer.load('http://www.bbc.co.uk/iplayer/playlist/' + episode.data('pid'));
+          // mediaPlayer.load('http://www.bbc.co.uk/iplayer/playlist/' + episode.data('pid'));
         }
 
         url = "http://www.bbc.co.uk/radio1/programmes/genres/music/danceandelectronica/player/episodes.json"
@@ -169,7 +169,7 @@
         var recordCtx = recordCanvas.getContext('2d');
         var gif, recordGif, lastFrameTime;
 
-        var sounds = {}, audioFiles = ['klaxon', 'wob', 'glass', 'rewind'];
+        var sounds = {}, audioFiles = ['klaxon', 'wob', 'rewind'];
         for (var i=0; i<audioFiles.length; i++) {
           name = audioFiles[i];
           sounds[name] = new Howl({ urls: ["sounds/" + name + ".mp3"] });
@@ -183,9 +183,9 @@
           }
         });
 
-        var glassImg = new Image(), bombImg = new Image(), rewindImg = new Image();
+        var klaxonImg = new Image(), bombImg = new Image(), rewindImg = new Image();
         bombImg.src = "images/bomb.svg";
-        glassImg.src = "images/fragile.svg";
+        klaxonImg.src = "images/klaxon.png";
         rewindImg.src = "images/fast-forward.svg";
 
         motionplayer.init(video, canvas);
@@ -199,6 +199,7 @@
         });
 
         function playSoundIfPaused(name) {
+          console.log(name);
           if (sounds[name].pos() === 0) {
             sounds[name].play();
             return true;
@@ -214,9 +215,16 @@
 
           var w = canvas.width / 8;
           ctx.drawImage(bombImg, 0, 0, w, w);
-          ctx.drawImage(glassImg, canvas.width-w, 0, w, w);
           ctx.drawImage(rewindImg, (canvas.width/2)-w, 0, w*2, w);
 
+          if (sounds['klaxon'].pos() > 0) {
+            var scale = (0.75 + (Math.random()/4));
+            var size = scale * w;
+            var offset = (w - size)/2;
+            ctx.drawImage(klaxonImg, canvas.width-w+offset, offset, size, size);
+          } else {
+            ctx.drawImage(klaxonImg, canvas.width-w, 0, w, w);
+          }
 
           if (recordGif) {
             var now = new Date().getTime();
@@ -251,7 +259,7 @@
                   });
                 };
               }
-              if (i===7) { playSoundIfPaused('glass'); }
+              if (i===7) { playSoundIfPaused('klaxon'); }
             }
           }
 
