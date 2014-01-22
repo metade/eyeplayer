@@ -77,6 +77,9 @@
           <canvas id="overlay"></canvas>
         </div>
         <div id="mediaPlayer" style="width: 100%; height: 100px;"></div>
+
+        <img id="your-face">
+
         <div id="episodes-container">
           <div id="episodes">
           </div>
@@ -148,17 +151,30 @@
         });
       });
 
-      require(['motionPlayer', 'howler.min'], function(motionPlayer, Howler) {
+      require(['motionPlayer', 'howler.min', 'gif'], function(motionPlayer, Howler, Gif) {
         var video = document.getElementById('inputVideo');
         var canvas = document.getElementById('overlay');
         var motionplayer = new motionPlayer({ debug: true });
         var ctx = canvas.getContext('2d');
 
-        var sounds = {}, audioFiles = ['klaxon', 'bomb', 'wob', 'glass', 'rewind'];
+        var recordCanvas = document.createElement('canvas');
+        recordCanvas.width = 160; recordCanvas.height = 120;
+        var recordCtx = recordCanvas.getContext('2d');
+        var gif, recordGif, lastFrameTime;
+
+        var sounds = {}, audioFiles = ['klaxon', 'wob', 'glass', 'rewind'];
         for (var i=0; i<audioFiles.length; i++) {
           name = audioFiles[i];
           sounds[name] = new Howl({ urls: ["sounds/" + name + ".mp3"] });
         }
+        sounds['bomb'] = new Howl({
+          urls: ["sounds/bomb.mp3"],
+          onend: function() {
+            console.log("finished bomb");
+            gif.render();
+            recordGif = false;
+          }
+        });
 
         var glassImg = new Image(), bombImg = new Image(), rewindImg = new Image();
         bombImg.src = "images/bomb.svg";
@@ -194,6 +210,14 @@
           ctx.drawImage(glassImg, canvas.width-w, 0, w, w);
           ctx.drawImage(rewindImg, (canvas.width/2)-w, 0, w*2, w);
 
+
+          if (recordGif) {
+            var now = new Date().getTime();
+            recordCtx.drawImage(canvas, 0, 0, recordCanvas.width, recordCanvas.height);
+            gif.addFrame(recordCtx, { copy: true, delay: now-lastFrameTime });
+            lastFrameTime = now;
+          }
+
           for (var i=0; i<event.regions.length; i++) {
             if (event.regions[i] > 0) {
               ctx.save();
@@ -203,7 +227,16 @@
               ctx.fillText(Math.floor(event.regions[i]), 0, 0);
               ctx.restore();
 
-              if (i===0) { playSoundIfPaused('bomb'); }
+              if (i===0) {
+                if (playSoundIfPaused('bomb')) {
+                  recordGif = true;
+                  lastFrameTime = new Date().getTime();
+                  gif = new GIF({ workers: 2, quality: 10, width: recordCanvas.width, height: recordCanvas.height });
+                  gif.on('finished', function(blob) {
+                    document.getElementById("your-face").src = URL.createObjectURL(blob);
+                  });
+                };
+              }
               if (i===7) { playSoundIfPaused('glass'); }
             }
           }

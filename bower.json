@@ -1,6 +1,7 @@
 {
   "name": "eyeplayer",
   "dependencies": {
-    "howler": "~1.1"
+    "howler": "~1.1",
+    "gif.js": "*"
   }
 }
