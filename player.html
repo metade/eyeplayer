@@ -43,8 +43,11 @@
         background-color: #ddd;
       }
       #episodes a img { margin: 0px; }
-      #episodes a h4, #episodes a p {
+      #episodes a h5, #episodes a p {
         margin: 0px 5px 0px 5px;
+      }
+      #your-face a:hover {
+
       }
     </style>
 
@@ -79,6 +82,8 @@
         </div>
 
         <div id="your-face" class="container"></div>
+
+        <h4>Pick a show</h4>
         <div class="container">
           <div id="episodes">
           </div>
@@ -136,7 +141,7 @@
               var pid = episode.programme.pid;
               var html = '<a data-pid="' + pid + '">' +
                 '  <img src="http://ichef.bbci.co.uk/images/ic/192x108/legacy/episode/' + pid + '.jpg?nodefault=true" />' +
-                '  <h4>' + episode.programme.programme.title + '</h4>' +
+                '  <h5>' + episode.programme.programme.title + '</h5>' +
                 '  <p>' + episode.programme.title + '</p>' +
                 '</a>'
               $('#episodes').append(html);
@@ -236,7 +241,7 @@
                     var a = document.createElement("a");
                     var g = document.createElement("img");
                     g.src = URL.createObjectURL(blob);
-                    var container = document.getElementById("your-face")
+                    var container = document.getElementById("your-face");
                     a.appendChild(g);
                     a.href = g.src;
                     a.download = "your-face.gif";
