@@ -33,7 +33,9 @@
         <header class="inner">
           <a id="forkme_banner" href="https://github.com/sidekickstudios/eyeplayer">View on GitHub</a>
 
-          <h1 id="project_title">Eyeplayer</h1>
+          <a href="/">
+            <h1 id="project_title">Eyeplayer</h1>
+          </a>
           <h2 id="project_tagline">Control stuff with your webcam</h2>
 
             <section id="downloads">
@@ -53,8 +55,17 @@
           <canvas id="overlay"></canvas>
         </div>
 
-        <h3>Usage example</h3>
+        <h3>About this demonstration</h3>
+        <p>This is an example of detecting a user blinking with a webcam.</p>
+        <p>It uses the following approach:</p>
+        <ul>
+          <li>the user's face position is determined using the <a href="https://github.com/auduno/headtrackr/">headtrackr</a> library</li>
+          <li>from this the user's eyes region position is estimated (i.e. somewhere in the middle of the face.)</li>
+          <li>we then use a blob motion detection technique based on the approach from the Flash <a href="https://github.com/og2t/HiSlope">HiSlope</a> library.</li>
+          <li>if there are two blobs of motion in the eye region that are placed on opposite sides of the region then we trigger a blink</li>
+        </ul>
 
+        <h3>Usage example</h3>
         <pre><code>
           &lt;script data-main="javascripts/eyePlayer.min.js" src="javascripts/require.js"&gt;&lt;/script&gt;
           &lt;script type="text/javascript"&gt;
@@ -78,6 +89,7 @@
           &lt;/script&gt;
         </code></pre>
 
+        <p>View source of this page to see a more complete example</p>
       </section>
     </div>
 
@@ -100,7 +112,7 @@
       var glassesImg = new Image();
       glassesImg.src = "images/glasses.svg";
 
-      var sounds = {}, audioFiles = ['klaxon', 'bomb', 'wob', 'glass', 'rewind'];
+      var sounds = {}, audioFiles = ['wob'];
       for (var i=0; i<audioFiles.length; i++) {
         name = audioFiles[i];
         sounds[name] = new Audio();
@@ -151,21 +163,6 @@
           ctx.font="100px Georgia";
           ctx.fillText("BLINK", 0, canvasOutput.height/2);
           countdown -= 1;
-        }
-        for (var i=0; i<event.regions.length; i++) {
-          if (event.regions[i] > 0) {
-            ctx.font="10px Georgia";
-            ctx.fillText(Math.floor(event.regions[i]), i*canvasOutput.width/8, 10);
-          }
-          if (event.regions[0] > 0) {
-            playSoundIfPaused('bomb');
-          }
-          if (event.regions[3] > 0 || event.regions[4] > 0) {
-            playSoundIfPaused('rewind');
-          }
-          if (event.regions[7] > 0) {
-            playSoundIfPaused('glass');
-          }
         }
       });
 
