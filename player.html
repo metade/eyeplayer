@@ -182,6 +182,14 @@
           urls: ["sounds/rewind.mp3"],
           onend: function() {
             vinylAngleDiff = Math.PI/10;
+            mediaPlayer.play();
+          }
+        });
+        sounds['fastforward'] = new Howl({
+          urls: ["sounds/fastforward.mp3"],
+          onend: function() {
+            vinylAngleDiff = Math.PI/10;
+            mediaPlayer.play();
           }
         });
         sounds['bomb'] = new Howl({
@@ -213,7 +221,7 @@
         function drawVinyl() {
           var w = canvas.width / 2;
           ctx.save();
-          ctx.translate(w, -w/3);
+          ctx.translate(w, -w/4);
           ctx.rotate(vinylAngle);
           ctx.drawImage(vinylImg, -w/2, -w/2, w, w);
           ctx.restore();
@@ -252,6 +260,8 @@
           } else {
             ctx.drawImage(klaxonImg, canvas.width-w, 0, w, w);
           }
+
+          // ctx.strokeRect(w*3, 0, w*2, w);
 
           drawVinyl();
 
@@ -295,16 +305,16 @@
           var regions = event.regions;
           if (regions[3] > 0 && regions[4] > 0) {
             if (regions[3] > regions[4]) {
-              if (playSoundIfPaused('rewind')) {
-                // rewind
+              if ((sounds['fastforward'].pos() === 0) && playSoundIfPaused('rewind')) {
                 var time = mediaPlayer.currentTime();
+                mediaPlayer.pause();
                 mediaPlayer.currentTime(time - 30);
                 vinylAngleDiff = - Math.PI / 5;
               }
             } else {
-              if (playSoundIfPaused('rewind')) {
-                // fastforward
+              if ((sounds['rewind'].pos() === 0) && playSoundIfPaused('fastforward')) {
                 var time = mediaPlayer.currentTime();
+                mediaPlayer.pause();
                 mediaPlayer.currentTime(time + 30);
                 vinylAngleDiff = Math.PI / 5;
               }
