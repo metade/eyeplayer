@@ -98,6 +98,10 @@
           ...
         </code></pre>
 
+        <ul>
+          <li class="attribution">Record designed by <a href="/joylucktrevor">Trevor Tarczynski</a> from the <a href="http://www.thenounproject.com">Noun Project</a></li>
+        </ul>
+
       </section>
     </div>
 
@@ -131,7 +135,7 @@
         function playEpisode(episode) {
           $('#episodes a').removeClass('playing');
           episode.addClass('playing');
-          // mediaPlayer.load('http://www.bbc.co.uk/iplayer/playlist/' + episode.data('pid'));
+          mediaPlayer.load('http://www.bbc.co.uk/iplayer/playlist/' + episode.data('pid'));
         }
 
         url = "http://www.bbc.co.uk/radio1/programmes/genres/music/danceandelectronica/player/episodes.json"
@@ -169,11 +173,17 @@
         var recordCtx = recordCanvas.getContext('2d');
         var gif, recordGif, lastFrameTime;
 
-        var sounds = {}, audioFiles = ['klaxon', 'wob', 'rewind'];
+        var sounds = {}, audioFiles = ['klaxon'];
         for (var i=0; i<audioFiles.length; i++) {
           name = audioFiles[i];
           sounds[name] = new Howl({ urls: ["sounds/" + name + ".mp3"] });
         }
+        sounds['rewind'] = new Howl({
+          urls: ["sounds/rewind.mp3"],
+          onend: function() {
+            vinylAngleDiff = Math.PI/10;
+          }
+        });
         sounds['bomb'] = new Howl({
           urls: ["sounds/bomb.mp3"],
           onend: function() {
@@ -183,10 +193,11 @@
           }
         });
 
-        var klaxonImg = new Image(), bombImg = new Image(), rewindImg = new Image();
+        var klaxonImg = new Image(), bombImg = new Image();
         bombImg.src = "images/bomb.svg";
         klaxonImg.src = "images/klaxon.png";
-        rewindImg.src = "images/fast-forward.svg";
+        var vinylImg = new Image();
+        vinylImg.src = "images/vinyl.svg";
 
         motionplayer.init(video, canvas);
         motionplayer.start();
@@ -197,6 +208,17 @@
             data[i+3] = 50;
           }
         });
+
+        var vinylAngle = 0, vinylAngleDiff = Math.PI/10;
+        function drawVinyl() {
+          var w = canvas.width / 2;
+          ctx.save();
+          ctx.translate(w, -w/3);
+          ctx.rotate(vinylAngle);
+          ctx.drawImage(vinylImg, -w/2, -w/2, w, w);
+          ctx.restore();
+          vinylAngle += vinylAngleDiff;
+        }
 
         function playSound(name) {
           if (sounds[name].pos() === 0) {
@@ -221,7 +243,6 @@
 
           var w = canvas.width / 8;
           ctx.drawImage(bombImg, 0, 0, w, w);
-          ctx.drawImage(rewindImg, (canvas.width/2)-w, 0, w*2, w);
 
           if (sounds['klaxon'].pos() > 0) {
             var scale = (0.75 + (Math.random()/4));
@@ -231,6 +252,8 @@
           } else {
             ctx.drawImage(klaxonImg, canvas.width-w, 0, w, w);
           }
+
+          drawVinyl();
 
           if (recordGif) {
             var now = new Date().getTime();
@@ -273,13 +296,17 @@
           if (regions[3] > 0 && regions[4] > 0) {
             if (regions[3] > regions[4]) {
               if (playSoundIfPaused('rewind')) {
+                // rewind
                 var time = mediaPlayer.currentTime();
                 mediaPlayer.currentTime(time - 30);
+                vinylAngleDiff = - Math.PI / 5;
               }
             } else {
               if (playSoundIfPaused('rewind')) {
+                // fastforward
                 var time = mediaPlayer.currentTime();
                 mediaPlayer.currentTime(time + 30);
+                vinylAngleDiff = Math.PI / 5;
               }
             }
           }
