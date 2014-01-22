@@ -198,8 +198,14 @@
           }
         });
 
+        function playSound(name) {
+          if (sounds[name].pos() === 0) {
+            sounds[name].play();
+          } else {
+            sounds[name].pos(0);
+          }
+        }
         function playSoundIfPaused(name) {
-          console.log(name);
           if (sounds[name].pos() === 0) {
             sounds[name].play();
             return true;
@@ -259,7 +265,7 @@
                   });
                 };
               }
-              if (i===7) { playSoundIfPaused('klaxon'); }
+              if (i===7) { playSound('klaxon'); }
             }
           }
 
