@@ -26,10 +26,11 @@
       }
       .container {
         overflow: auto;
+        overflow-y: hidden;
         width: 100%;
       }
       #episodes {
-        height: 280px;
+        /*height: 280px;*/
       }
       #episodes a {
         cursor: pointer;
@@ -76,15 +77,13 @@
           <video id="inputVideo" autoplay></video>
           <canvas id="overlay"></canvas>
         </div>
-        <div id="mediaPlayer" style="width: 100%; height: 100px;"></div>
 
-        <div id="your-face" class="container">
-
-        </div>
+        <div id="your-face" class="container"></div>
         <div class="container">
           <div id="episodes">
           </div>
         </div>
+        <div id="mediaPlayer" style="width: 100%; height: 40px;"></div>
 
 
         <h3>Usage example</h3>
