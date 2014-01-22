@@ -421,3 +421,10 @@ Small Device Styles
   }
 
 }
+
+/*#project_title a {
+  background-size: cover;
+  background-image: url(/images/logo.png);
+  text-indent: -999em;
+}
+*/
