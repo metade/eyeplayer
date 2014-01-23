@@ -1,5 +1,8 @@
 define("motionDetector", ["blendDifference"], function(blendDifference) {
-  return function motionDetector() {
+  return function motionDetector(params) {
+    if (!params) { params = {}; }
+    if (!params.scale) { params.scale = 1.0; }
+
     var diffImage, lastImage;
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
@@ -26,10 +29,11 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
       return regs;
     };
 
-    this.tick = function(image, filter) {
-      var w = (image.width || image.videoWidth), h = (image.height || image.videoHeight);
-      if (w && h) {
-        canvas.width = w;
+    this.tick = function(image) {
+      var w = (image.width || image.videoWidth) * params.scale,
+        h = (image.height || image.videoHeight) * params.scale;
+      if (w && h && canvas.width != w && canvas.height != h) {
+        canvas.width = w ;
         canvas.height = h;
       }
 
@@ -44,8 +48,8 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
 
       lastImage = myImage;
 
-      if (filter) {
-        filter(diffImage);
+      if (params.filter) {
+        params.filter(diffImage);
       }
       ctx.putImageData(diffImage, 0, 0);
       return canvas;

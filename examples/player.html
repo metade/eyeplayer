@@ -34,25 +34,28 @@
 
   <script type="text/javascript">
     require(['motionPlayer'], function(motionPlayer) {
+      var scale = 1/3;
       var video = document.getElementById('inputVideo');
       var canvas = document.getElementById('overlay');
-      var motionplayer = new motionPlayer({ debug: true });
+      var motionplayer = new motionPlayer({
+        debug: true,
+        scale: scale,
+        filter: function(image) {
+          data = image.data;
+          for (var i=0; i<data.length; i+=4) {
+            data[i+3] = 50;
+          }
+        }
+      });
       var ctx = canvas.getContext('2d');
 
       motionplayer.init(video, canvas);
       motionplayer.start();
 
-      motionplayer.setFilter(function(image) {
-        data = image.data;
-        for (var i=0; i<data.length; i+=4) {
-          data[i+3] = 50;
-        }
-      });
-
       document.addEventListener('motionEvent', function(event) {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        ctx.drawImage(event.image, 0, 0, canvas.width, canvas.height);
+        ctx.drawImage(event.image, 0, canvas.height-(canvas.height*scale), canvas.width*scale, canvas.height*scale);
 
         for (var i=0; i<event.regions.length; i++) {
           if (event.regions[i] > 0) {

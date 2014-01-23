@@ -1,7 +1,7 @@
 define("motionPlayer", ["motionDetector"], function(MotionDetector) {
   return function motionPlayer(params) {
     if (!params) { params = {}; }
-    var video, canvas, ctx, motiondetector, filter;
+    var video, canvas, ctx, motiondetector;
 
     function startVideo() {
       var videoObj = { "video": true },
@@ -39,7 +39,7 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
     })();
 
     function tick() {
-      var diffImage = motiondetector.tick(video, filter);
+      var diffImage = motiondetector.tick(video);
       var regions = motiondetector.regions();
 
       var evt = document.createEvent("Event");
@@ -51,15 +51,11 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
       window.requestAnimFrame(tick);
     }
 
-    this.setFilter = function(theFilter) {
-      filter = theFilter;
-    };
-
     this.init = function(videoInput, canvasOverlay) {
       video = videoInput;
       canvas = canvasOverlay;
       ctx = canvas.getContext('2d');
-      motiondetector = new MotionDetector();
+      motiondetector = new MotionDetector(params);
       video.addEventListener('playing', this.resize, false);
     };
 
