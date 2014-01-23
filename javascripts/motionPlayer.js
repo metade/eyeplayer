@@ -1,4 +1,4 @@
-/*! eyeplayer - v0.0.0 - 2014-01-21
+/*! eyeplayer - v0.0.0 - 2014-01-23
 * Copyright (c) 2014 Author Name; Licensed MIT */
 
 define("blendDifference", [], function() {
@@ -40,7 +40,10 @@ define("blendDifference", [], function() {
 });
 
 define("motionDetector", ["blendDifference"], function(blendDifference) {
-  return function motionDetector() {
+  return function motionDetector(params) {
+    if (!params) { params = {}; }
+    if (!params.scale) { params.scale = 1.0; }
+
     var diffImage, lastImage;
     var canvas = document.createElement('canvas');
     var ctx = canvas.getContext('2d');
@@ -67,16 +70,21 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
       return regs;
     };
 
-    this.tick = function(image, filter) {
-      var w = (image.width || image.videoWidth), h = (image.height || image.videoHeight);
-      if (w && h) {
-        canvas.width = w;
+    this.tick = function(image) {
+      var w = Math.floor((image.width || image.videoWidth || 640) * params.scale),
+          h = Math.floor((image.height || image.videoHeight || 380) * params.scale);
+      if (w && h && canvas.width !== w && canvas.height !== h) {
+        canvas.width = w ;
         canvas.height = h;
       }
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       diffImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      try {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      } catch(e) {
+        return diffImage;
+      }
 
       var myImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -85,8 +93,8 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
 
       lastImage = myImage;
 
-      if (filter) {
-        filter(diffImage);
+      if (params.filter) {
+        params.filter(diffImage);
       }
       ctx.putImageData(diffImage, 0, 0);
       return canvas;
@@ -97,7 +105,18 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
 define("motionPlayer", ["motionDetector"], function(MotionDetector) {
   return function motionPlayer(params) {
     if (!params) { params = {}; }
-    var video, canvas, ctx, motiondetector, filter;
+    var video, canvas, ctx, motiondetector;
+
+    window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame    ||
+        window.oRequestAnimationFrame      ||
+        window.msRequestAnimationFrame     ||
+        function( callback ){
+          window.setTimeout(callback, 1000 / 60);
+        };
+    })();
 
     function startVideo() {
       var videoObj = { "video": true },
@@ -123,19 +142,20 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
       }
     }
 
-    window.requestAnimFrame = (function(){
-      return  window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame    ||
-        window.oRequestAnimationFrame      ||
-        window.msRequestAnimationFrame     ||
-        function( callback ){
-          window.setTimeout(callback, 1000 / 60);
-        };
-    })();
+    function startProcess() {
+      if (video.videoWidth && video.videoHeight) {
+        var videoWidth = video.offsetWidth;
+        var videoHeight = (video.offsetHeight/video.offsetWidth) * video.offsetWidth;
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+        tick();
+      } else {
+        window.setTimeout(startProcess, 0.1);
+      }
+    }
 
     function tick() {
-      var diffImage = motiondetector.tick(video, filter);
+      var diffImage = motiondetector.tick(video);
       var regions = motiondetector.regions();
 
       var evt = document.createEvent("Event");
@@ -147,28 +167,16 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
       window.requestAnimFrame(tick);
     }
 
-    this.setFilter = function(theFilter) {
-      filter = theFilter;
-    };
-
     this.init = function(videoInput, canvasOverlay) {
       video = videoInput;
       canvas = canvasOverlay;
       ctx = canvas.getContext('2d');
-      motiondetector = new MotionDetector();
-      video.addEventListener('playing', this.resize, false);
-    };
-
-    this.resize = function() {
-      var videoWidth = video.offsetWidth;
-      var videoHeight = (video.videoHeight/video.videoWidth) * videoWidth;
-      canvas.width = videoWidth;
-      canvas.height = videoHeight;
+      motiondetector = new MotionDetector(params);
+      video.addEventListener('playing', startProcess, false);
     };
 
     this.start = function() {
       startVideo();
-      window.setTimeout(tick, 1000);
     };
   };
 });
