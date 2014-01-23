@@ -305,15 +305,39 @@
           }
         }
 
+        function drawMotionCam(image, regions, w) {
+          var mX = 0,
+              mY = 2 * (canvas.height / 3),
+              mW = canvas.width / 3,
+              mH = canvas.height / 3,
+              rW = w / 3;
+
+          ctx.drawImage(image, mX, mY, mW, mH);
+
+          ctx.strokeStyle = "rgba(255,255,255,0.8)";
+          ctx.beginPath();
+          ctx.arc(mX+rW/2,mY+rW/2,rW/3,0,Math.PI*2,true);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.arc(mW-rW/2,mY+rW/2,rW/3,0,Math.PI*2,true);
+          ctx.stroke();
+
+          for (var i = 0; i < regions.length; i++) {
+            if ((i == 0 || i == 7 || i == 3 || i == 4) && regions[i] > 0) {
+              ctx.fillStyle = "rgba(255,255,255," + (regions[i]/100) + ")";
+              ctx.fillRect(mX+i*rW, mY, rW, rW);
+            }
+          }
+        }
+
         document.addEventListener('motionEvent', function(event) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
           recorder.tick(canvas);
 
-          ctx.drawImage(event.image, 0, 2*(canvas.height/3), canvas.width/3, canvas.height/3);
-
           var w = canvas.width / 8;
+          drawMotionCam(event.image, event.regions, w);
           drawActionButton(bombImg, sounds['bomb'], 0, 0, w);
           drawActionButton(klaxonImg, sounds['klaxon'], canvas.width-w, 0, w);
 
