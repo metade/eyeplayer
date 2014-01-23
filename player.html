@@ -261,6 +261,16 @@
         motionplayer.init(video, canvas);
         motionplayer.start();
 
+        function displayText(text) {
+          ctx.save();
+          ctx.translate(2*(canvas.width/3), canvas.height/2);
+          ctx.scale(-1,1);
+          ctx.strokeStyle = "rgba(255,255,255,1)";
+          ctx.font="40px Georgia";
+          ctx.fillText(text, 0, 0);
+          ctx.restore();
+        }
+
         var vinylAngle = 0, vinylAngleDiff = Math.PI/10;
         function drawVinyl() {
           var w = canvas.width / 2;
@@ -270,6 +280,13 @@
           ctx.drawImage(vinylImg, -w/2, -w/2, w, w);
           ctx.restore();
           vinylAngle += vinylAngleDiff;
+
+          if (sounds["rewind"].pos()) {
+            displayText("PULL UP");
+          }
+          if (sounds["fastforward"].pos()) {
+            displayText("GO FORWARD");
+          }
         }
 
         function playSound(name) {
@@ -342,8 +359,11 @@
             playSound('klaxon');
             recorder.start();
           }
-          if (regions[3] > 0 && regions[4] > 0) {
-            if (regions[3] > regions[4]) {
+
+          var left = regions[2] + regions[3],
+            right = regions[4] + regions[5];
+          if (left > 0 && right > 0) {
+            if (left > right) {
               if ((sounds['fastforward'].pos() === 0) && playSoundIfPaused('rewind')) {
                 var time = mediaPlayer.currentTime();
                 mediaPlayer.pause();
