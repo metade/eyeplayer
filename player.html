@@ -247,6 +247,17 @@
           }
         }
 
+        function drawActionButton(img, sound, x, y, w) {
+          if (sound.pos() > 0) {
+            var scale = (0.75 + (Math.random()/4));
+            var size = scale * w;
+            var offset = (w - size)/2;
+            ctx.drawImage(img, x+offset, y+offset, size, size);
+          } else {
+            ctx.drawImage(img, x, y, w, w);
+          }
+        }
+
         document.addEventListener('motionEvent', function(event) {
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -261,22 +272,10 @@
           ctx.drawImage(event.image, 0, 2*(canvas.height/3), canvas.width/3, canvas.height/3);
 
           var w = canvas.width / 8;
-          ctx.drawImage(bombImg, 0, 0, w, w);
-
-          if (sounds['klaxon'].pos() > 0) {
-            var scale = (0.75 + (Math.random()/4));
-            var size = scale * w;
-            var offset = (w - size)/2;
-            ctx.drawImage(klaxonImg, canvas.width-w+offset, offset, size, size);
-          } else {
-            ctx.drawImage(klaxonImg, canvas.width-w, 0, w, w);
-          }
-
-          // ctx.strokeRect(w*3, 0, w*2, w);
+          drawActionButton(bombImg, sounds['bomb'], 0, 0, w);
+          drawActionButton(klaxonImg, sounds['klaxon'], canvas.width-w, 0, w);
 
           drawVinyl();
-
-
 
           for (var i=0; i<event.regions.length; i++) {
             if (event.regions[i] > 0) {
