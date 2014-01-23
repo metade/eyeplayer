@@ -169,21 +169,80 @@
           scale: 1/3,
           debug: true,
           filter: function(image) {
-          data = image.data;
-          for (var i=0; i<data.length; i+=4) {
-            data[i+3] = 100;
+            data = image.data;
+            for (var i=0; i<data.length; i+=4) {
+              data[i+3] = 100;
+            }
           }
-        }
-
         });
         var ctx = canvas.getContext('2d');
 
-        var recordCanvas = document.createElement('canvas');
-        recordCanvas.width = 160; recordCanvas.height = 120;
-        var recordCtx = recordCanvas.getContext('2d');
-        var gif, recordGif, lastFrameTime;
+        function Recorder() {
+          var recordCanvas = document.createElement('canvas');
+          var recordCtx = recordCanvas.getContext('2d');
+          var gif, isRecording, lastFrameTime, totalTime;
+          recordCanvas.width = 160; recordCanvas.height = 120;
 
-        var sounds = {}, audioFiles = ['klaxon'];
+          this.start = function() {
+            if (!this.recording() && !this.rendering()) {
+              console.log("starting");
+              totalTime = 0;
+              isRecording = true;
+              lastFrameTime = new Date().getTime();
+              gif = new GIF({
+                workers: 2,
+                quality: 10,
+                width: recordCanvas.width,
+                height: recordCanvas.height
+              });
+              gif.on('finished', function(blob) {
+                var a = document.createElement("a");
+                var g = document.createElement("img");
+                g.src = URL.createObjectURL(blob);
+                var container = document.getElementById("your-face");
+                a.appendChild(g);
+                a.href = g.src;
+                a.download = "your-face.gif";
+                container.insertBefore(a, container.firstChild);
+                gif = null;
+                console.log("finished");
+              });
+            }
+          }
+
+          this.recording = function() {
+            return (isRecording);
+          }
+
+          this.rendering = function() {
+            return (gif && gif.running);
+          }
+
+          this.tick = function(image) {
+            if (this.recording() && !this.rendering()) {
+              var now = new Date().getTime();
+              var timeDiff = now - lastFrameTime;
+              recordCtx.drawImage(canvas, 0, 0, recordCanvas.width, recordCanvas.height);
+              gif.addFrame(recordCtx, { copy: true, delay: timeDiff });
+              lastFrameTime = now;
+              totalTime += timeDiff;
+              console.log(totalTime);
+            }
+            if (totalTime > 1000) {
+              this.finish();
+            }
+          }
+
+          this.finish = function() {
+            if (this.recording() && !this.rendering()) {
+              isRecording = false;
+              gif.render();
+            }
+          }
+        }
+        var recorder = new Recorder();
+
+        var sounds = {}, audioFiles = ['bomb', 'klaxon'];
         for (var i=0; i<audioFiles.length; i++) {
           name = audioFiles[i];
           sounds[name] = new Howl({ urls: ["sounds/" + name + ".mp3"] });
@@ -205,9 +264,7 @@
         sounds['bomb'] = new Howl({
           urls: ["sounds/bomb.mp3"],
           onend: function() {
-            console.log("finished bomb");
-            gif.render();
-            recordGif = false;
+            recorder.finish();
           }
         });
 
@@ -262,12 +319,7 @@
           ctx.clearRect(0, 0, canvas.width, canvas.height);
           ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-          if (recordGif) {
-            var now = new Date().getTime();
-            recordCtx.drawImage(canvas, 0, 0, recordCanvas.width, recordCanvas.height);
-            gif.addFrame(recordCtx, { copy: true, delay: now-lastFrameTime });
-            lastFrameTime = now;
-          }
+          recorder.tick(canvas);
 
           ctx.drawImage(event.image, 0, 2*(canvas.height/3), canvas.width/3, canvas.height/3);
 
@@ -287,23 +339,13 @@
               ctx.restore();
 
               if (i===0) {
-                if (playSoundIfPaused('bomb')) {
-                  recordGif = true;
-                  lastFrameTime = new Date().getTime();
-                  gif = new GIF({ workers: 2, quality: 10, width: recordCanvas.width, height: recordCanvas.height });
-                  gif.on('finished', function(blob) {
-                    var a = document.createElement("a");
-                    var g = document.createElement("img");
-                    g.src = URL.createObjectURL(blob);
-                    var container = document.getElementById("your-face");
-                    a.appendChild(g);
-                    a.href = g.src;
-                    a.download = "your-face.gif";
-                    container.insertBefore(a, container.firstChild);
-                  });
-                };
+                playSound('bomb');
+                recorder.start();
               }
-              if (i===7) { playSound('klaxon'); }
+              if (i===7) {
+                playSound('klaxon');
+                recorder.start();
+              }
             }
           }
 
