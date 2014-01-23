@@ -29,9 +29,6 @@
         overflow-y: hidden;
         width: 100%;
       }
-      #episodes {
-        /*height: 280px;*/
-      }
       #episodes a {
         cursor: pointer;
         display: block;
@@ -83,7 +80,9 @@
         </div>
         <div id="mediaPlayer" style="width: 100%; height: 83px;"></div>
 
-        <div id="your-face" class="container"></div>
+        <div class="container">
+          <div id="your-face"></div>
+        </div>
 
         <h4>Pick a show</h4>
         <div class="container">
@@ -122,7 +121,7 @@
         "bump-3":"http://emp.bbci.co.uk/emp/bump-3/bump-3"
       }
       require({ paths: bbcRequireMap, waitSeconds: 30 });
-      require(['bump-3'],function ($) {
+      require(['bump-3', 'motionPlayer', 'howler.min', 'gif'],function ($, motionPlayer, Howler, Gif) {
         var settings = {
           product : 'iplayer',
           playerProfile: 'smp',
@@ -160,9 +159,7 @@
             playEpisode($("#episodes a:first-child"));
           }
         });
-      });
 
-      require(['motionPlayer', 'howler.min', 'gif'], function(motionPlayer, Howler, Gif) {
         var video = document.getElementById('inputVideo');
         var canvas = document.getElementById('overlay');
         var motionplayer = new motionPlayer({
@@ -204,6 +201,8 @@
                 a.download = "your-face.gif";
                 container.insertBefore(a, container.firstChild);
                 gif = null;
+
+                $('#your-face').width($('#your-face a').length * 172);
               });
             }
           }
