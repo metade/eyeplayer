@@ -30,8 +30,8 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
     };
 
     this.tick = function(image) {
-      var w = (image.width || image.videoWidth) * params.scale,
-        h = (image.height || image.videoHeight) * params.scale;
+      var w = Math.floor((image.width || image.videoWidth || 640) * params.scale),
+          h = Math.floor((image.height || image.videoHeight || 380) * params.scale);
       if (w && h && canvas.width != w && canvas.height != h) {
         canvas.width = w ;
         canvas.height = h;
@@ -39,7 +39,12 @@ define("motionDetector", ["blendDifference"], function(blendDifference) {
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       diffImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      try {
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      } catch(e) {
+        console.log(e);
+        return diffImage;
+      }
 
       var myImage = ctx.getImageData(0, 0, canvas.width, canvas.height);
 

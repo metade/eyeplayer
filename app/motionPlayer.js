@@ -3,6 +3,17 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
     if (!params) { params = {}; }
     var video, canvas, ctx, motiondetector;
 
+    window.requestAnimFrame = (function(){
+      return  window.requestAnimationFrame ||
+        window.webkitRequestAnimationFrame ||
+        window.mozRequestAnimationFrame    ||
+        window.oRequestAnimationFrame      ||
+        window.msRequestAnimationFrame     ||
+        function( callback ){
+          window.setTimeout(callback, 1000 / 60);
+        };
+    })();
+
     function startVideo() {
       var videoObj = { "video": true },
         errBack = function(error) {
@@ -27,16 +38,17 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
       }
     }
 
-    window.requestAnimFrame = (function(){
-      return  window.requestAnimationFrame ||
-        window.webkitRequestAnimationFrame ||
-        window.mozRequestAnimationFrame    ||
-        window.oRequestAnimationFrame      ||
-        window.msRequestAnimationFrame     ||
-        function( callback ){
-          window.setTimeout(callback, 1000 / 60);
-        };
-    })();
+    function startProcess() {
+      if (video.videoWidth && video.videoHeight) {
+        var videoWidth = video.offsetWidth;
+        var videoHeight = (video.offsetHeight/video.offsetWidth) * video.offsetWidth;
+        canvas.width = videoWidth;
+        canvas.height = videoHeight;
+        tick();
+      } else {
+        window.setTimeout(startProcess, 0.1);
+      }
+    }
 
     function tick() {
       var diffImage = motiondetector.tick(video);
@@ -56,19 +68,11 @@ define("motionPlayer", ["motionDetector"], function(MotionDetector) {
       canvas = canvasOverlay;
       ctx = canvas.getContext('2d');
       motiondetector = new MotionDetector(params);
-      video.addEventListener('playing', this.resize, false);
-    };
-
-    this.resize = function() {
-      var videoWidth = video.offsetWidth;
-      var videoHeight = (video.videoHeight/video.videoWidth) * videoWidth;
-      canvas.width = videoWidth;
-      canvas.height = videoHeight;
+      video.addEventListener('playing', startProcess, false);
     };
 
     this.start = function() {
       startVideo();
-      window.setTimeout(tick, 1000);
     };
   };
 });

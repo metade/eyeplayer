@@ -9,13 +9,13 @@
     div#videoContainer {
       max-width: 800px;
       position: relative;
+      transform: rotateY(180deg);
+      -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+      -moz-transform:rotateY(180deg);
     }
     canvas#overlay {
       width: 100%;
       position: absolute;
-      transform: rotateY(180deg);
-      -webkit-transform:rotateY(180deg); /* Safari and Chrome */
-      -moz-transform:rotateY(180deg);
     }
     video {
       width: 100%;
