@@ -185,7 +185,6 @@
 
           this.start = function() {
             if (!this.recording() && !this.rendering()) {
-              console.log("starting");
               totalTime = 0;
               isRecording = true;
               lastFrameTime = new Date().getTime();
@@ -205,7 +204,6 @@
                 a.download = "your-face.gif";
                 container.insertBefore(a, container.firstChild);
                 gif = null;
-                console.log("finished");
               });
             }
           }
@@ -226,9 +224,8 @@
               gif.addFrame(recordCtx, { copy: true, delay: timeDiff });
               lastFrameTime = now;
               totalTime += timeDiff;
-              console.log(totalTime);
             }
-            if (totalTime > 1000) {
+            if (totalTime > 3000) {
               this.finish();
             }
           }
@@ -259,12 +256,6 @@
           onend: function() {
             vinylAngleDiff = Math.PI/10;
             mediaPlayer.play();
-          }
-        });
-        sounds['bomb'] = new Howl({
-          urls: ["sounds/bomb.mp3"],
-          onend: function() {
-            recorder.finish();
           }
         });
 
@@ -329,27 +320,15 @@
 
           drawVinyl();
 
-          for (var i=0; i<event.regions.length; i++) {
-            if (event.regions[i] > 0) {
-              ctx.save();
-              ctx.translate(i*canvas.width/8, 10);
-              ctx.scale(-1,1);
-              ctx.font="10px Georgia";
-              ctx.fillText(Math.floor(event.regions[i]), 0, 0);
-              ctx.restore();
-
-              if (i===0) {
-                playSound('bomb');
-                recorder.start();
-              }
-              if (i===7) {
-                playSound('klaxon');
-                recorder.start();
-              }
-            }
-          }
-
           var regions = event.regions;
+          if (regions[0] > 0) {
+            playSound('bomb');
+            recorder.start();
+          }
+          if (regions[7] > 0) {
+            playSound('klaxon');
+            recorder.start();
+          }
           if (regions[3] > 0 && regions[4] > 0) {
             if (regions[3] > regions[4]) {
               if ((sounds['fastforward'].pos() === 0) && playSoundIfPaused('rewind')) {
