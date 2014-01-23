@@ -1,6 +1,6 @@
-# eyeplayer
+# eyePlayer
 
-An awesome requirejs app
+A series of experiments to control stuff using a webcam.
 
 ## Getting Started
 
