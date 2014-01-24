@@ -180,6 +180,10 @@
           var gif, isRecording, lastFrameTime, totalTime;
           recordCanvas.width = 160; recordCanvas.height = 120;
 
+          var renderingImg = new Image();
+          renderingImg.src = "images/recording.svg";
+          renderingImg.angle = 0;
+
           this.start = function() {
             if (!this.recording() && !this.rendering()) {
               totalTime = 0;
@@ -237,13 +241,13 @@
           }
 
           this.draw = function() {
-            if (this.recording()) {
-              var r = Math.floor(canvas.width/50);
-              var x = canvas.width-r*2, y = canvas.height-r*2;
+            var r = Math.floor(canvas.width/50);
+            var x = canvas.width-r*2, y = canvas.height-r*2;
 
+            if (this.recording()) {
               // draw circle
               ctx.beginPath();
-              ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+              ctx.arc(x, y, r-5, 0, 2 * Math.PI, false);
               ctx.fillStyle = 'red';
               ctx.fill();
               ctx.lineWidth = 5;
@@ -258,8 +262,17 @@
               ctx.font = "bold " + r*2 + "px sans-serif";
               ctx.fillText("REC", 0, 0);
               ctx.restore();
+            } else if (this.rendering()) {
+              ctx.save();
+              ctx.translate(x, y);
+              ctx.rotate(renderingImg.angle+= Math.PI/20);
+              ctx.drawImage(renderingImg, -r, -r, r*2, r*2);
+              ctx.restore();
             }
           }
+
+
+
         }
         var recorder = new Recorder();
 
