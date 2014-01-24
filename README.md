@@ -23,7 +23,7 @@ build and run this app, such as [grunt](http://gruntjs.com),
 
 You can run your app using `grunt preview`. This will start a
 server on `localhost:8000`, meaning you can simply go to the
-urls [localhost:8000/examples/blink.html](http://localhost:8000/blink.html) and [localhost:8000/examples/motion.html](http://localhost:8000/motion.html)
+urls [localhost:8000/examples/blink.html](http://localhost:8000/examples/blink.html) and [localhost:8000/examples/motion.html](http://localhost:8000/examples/motion.html)
 while it's running.
 
 ## Building the application
