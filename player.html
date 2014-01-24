@@ -235,6 +235,31 @@
               gif.render();
             }
           }
+
+          this.draw = function() {
+            if (this.recording()) {
+              var r = Math.floor(canvas.width/50);
+              var x = canvas.width-r*2, y = canvas.height-r*2;
+
+              // draw circle
+              ctx.beginPath();
+              ctx.arc(x, y, r, 0, 2 * Math.PI, false);
+              ctx.fillStyle = 'red';
+              ctx.fill();
+              ctx.lineWidth = 5;
+              ctx.strokeStyle = '#ffffff';
+              ctx.stroke();
+
+              // draw REC
+              ctx.save();
+              ctx.translate(x - (r * 1.5), y + r*0.7);
+              ctx.scale(-1,1);
+              ctx.strokeStyle = "rgba(255,0,0,1)";
+              ctx.font = "bold " + r*2 + "px sans-serif";
+              ctx.fillText("REC", 0, 0);
+              ctx.restore();
+            }
+          }
         }
         var recorder = new Recorder();
 
@@ -327,16 +352,12 @@
         }
         var turnTable = new TurnTable();
 
-
         var klaxonImg = new Image(), bombImg = new Image();
         bombImg.src = "images/bomb.svg";
         klaxonImg.src = "images/klaxon.png";
 
-
         motionplayer.init(video, canvas);
         motionplayer.start();
-
-
 
         function playSound(name) {
           if (sounds[name].pos() === 0) {
@@ -375,6 +396,7 @@
           ctx.drawImage(image, mX, mY, mW, mH);
 
           var border = rW/10;
+          ctx.lineWidth = 1;
           ctx.strokeStyle = "rgba(255,255,255,0.8)";
           ctx.strokeRect(mX+border, mY+border, mW-(border*2), rW-border);
 
@@ -398,6 +420,7 @@
           drawActionButton(klaxonImg, sounds['klaxon'], canvas.width-w, 0, w);
 
           turnTable.draw();
+          recorder.draw();
 
           var regions = event.regions;
           if (regions[0] > 0) {
