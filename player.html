@@ -279,9 +279,6 @@
               ctx.restore();
             }
           }
-
-
-
         }
         var recorder = new Recorder();
 
@@ -290,7 +287,7 @@
           vinylImg.src = "images/vinyl.svg";
           var vinylAngle = 0, vinylAngleDiff = Math.PI/10;
 
-          var sounds = {}, audioFiles = ['rewind', 'fastforward', 'scratch'];
+          var sounds = {}, audioFiles = ['rewind', 'fastforward', 'scratch', 'scratch-back'];
           for (var i=0; i<audioFiles.length; i++) {
             name = audioFiles[i];
             sounds[name] = new Howl({
@@ -324,9 +321,11 @@
             }
           }
 
-          this.scratch = function() {
+          this.scratch = function(diff) {
             if (!this.status()) {
-              sounds['scratch'].play();
+              var sound = (diff > 0) ? sounds['scratch'] : sounds['scratch-back'];
+              sound._rate = 0.5 + (Math.abs(diff)/50);
+              sound.play();
               vinylAngleDiff = 0;
               mediaPlayer.pause();
             }
@@ -336,7 +335,7 @@
             ctx.save();
             ctx.translate(2*(canvas.width/3), canvas.height/2);
             ctx.scale(-1,1);
-            ctx.strokeStyle = "rgba(255,255,255,1)";
+            ctx.fillStyle = "rgba(255,255,255,1)";
             ctx.font="40px Georgia";
             ctx.fillText(text, 0, 0);
             ctx.restore();
@@ -457,9 +456,9 @@
           var left = regions[2] + regions[3],
             right = regions[4] + regions[5];
           if (left > 0 && right > 0) {
-            var diff = Math.abs(left - right);
-            if (diff < 30) {
-              turnTable.scratch();
+            var diff = left - right;
+            if (Math.abs(diff) < 50) {
+              turnTable.scratch(diff);
             } else if (left > right) {
               turnTable.rewind();
             } else {
