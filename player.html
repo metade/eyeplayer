@@ -168,6 +168,12 @@
         });
         var ctx = canvas.getContext('2d');
 
+        var sounds = {}, audioFiles = ['bomb', 'klaxon'];
+        for (var i=0; i<audioFiles.length; i++) {
+          name = audioFiles[i];
+          sounds[name] = new Howl({ urls: ["sounds/" + name + ".mp3"] });
+        }
+
         function Recorder() {
           var recordCanvas = document.createElement('canvas');
           var recordCtx = recordCanvas.getContext('2d');
@@ -232,67 +238,110 @@
         }
         var recorder = new Recorder();
 
-        var sounds = {}, audioFiles = ['bomb', 'klaxon'];
-        for (var i=0; i<audioFiles.length; i++) {
-          name = audioFiles[i];
-          sounds[name] = new Howl({ urls: ["sounds/" + name + ".mp3"] });
+        function TurnTable() {
+          var vinylImg = new Image();
+          vinylImg.src = "images/vinyl.svg";
+          var vinylAngle = 0, vinylAngleDiff = Math.PI/10;
+
+          var sounds = {}, audioFiles = ['rewind', 'fastforward', 'scratch'];
+          for (var i=0; i<audioFiles.length; i++) {
+            name = audioFiles[i];
+            sounds[name] = new Howl({
+              urls: ["sounds/" + name + ".mp3"],
+              onend: function() { reset(); }
+            });
+          }
+
+          function reset() {
+            vinylAngleDiff = Math.PI/10;
+            mediaPlayer.play();
+          }
+
+          this.fastforward = function() {
+            if (!this.status()) {
+              sounds['fastforward'].play();
+              var time = mediaPlayer.currentTime();
+              mediaPlayer.pause();
+              mediaPlayer.currentTime(time + 30);
+              vinylAngleDiff = Math.PI / 5;
+            }
+          }
+
+          this.rewind = function() {
+            if (!this.status()) {
+              sounds['rewind'].play();
+              var time = mediaPlayer.currentTime();
+              mediaPlayer.pause();
+              mediaPlayer.currentTime(time - 30);
+              vinylAngleDiff = - Math.PI / 5;
+            }
+          }
+
+          this.scratch = function() {
+            if (!this.status()) {
+              sounds['scratch'].play();
+              vinylAngleDiff = 0;
+              mediaPlayer.pause();
+            }
+          }
+
+          function drawText(text) {
+            ctx.save();
+            ctx.translate(2*(canvas.width/3), canvas.height/2);
+            ctx.scale(-1,1);
+            ctx.strokeStyle = "rgba(255,255,255,1)";
+            ctx.font="40px Georgia";
+            ctx.fillText(text, 0, 0);
+            ctx.restore();
+          }
+
+          this.status = function() {
+            var s = null;
+            for (var i=0; i < audioFiles.length; i++) {
+              var name = audioFiles[i];
+              if (sounds[name].pos() > 0) {
+                s = name;
+                break;
+              }
+            }
+            return s;
+          }
+
+          this.draw = function() {
+            var w = canvas.width / 2;
+            ctx.save();
+            ctx.translate(w, -w/4);
+            ctx.rotate(vinylAngle);
+            ctx.drawImage(vinylImg, -w/2, -w/2, w, w);
+            ctx.restore();
+            vinylAngle += vinylAngleDiff;
+
+            var s = this.status();
+            var text = {
+              rewind: "PULL UP!",
+              fastforward: "GO FORWARD",
+              scratch: "SCRATCH"
+            }[s];
+            if (text) { drawText(text) };
+          }
         }
-        sounds['rewind'] = new Howl({
-          urls: ["sounds/rewind.mp3"],
-          onend: function() {
-            vinylAngleDiff = Math.PI/10;
-            mediaPlayer.play();
-          }
-        });
-        sounds['fastforward'] = new Howl({
-          urls: ["sounds/fastforward.mp3"],
-          onend: function() {
-            vinylAngleDiff = Math.PI/10;
-            mediaPlayer.play();
-          }
-        });
+        var turnTable = new TurnTable();
+
 
         var klaxonImg = new Image(), bombImg = new Image();
         bombImg.src = "images/bomb.svg";
         klaxonImg.src = "images/klaxon.png";
-        var vinylImg = new Image();
-        vinylImg.src = "images/vinyl.svg";
+
 
         motionplayer.init(video, canvas);
         motionplayer.start();
 
-        function displayText(text) {
-          ctx.save();
-          ctx.translate(2*(canvas.width/3), canvas.height/2);
-          ctx.scale(-1,1);
-          ctx.strokeStyle = "rgba(255,255,255,1)";
-          ctx.font="40px Georgia";
-          ctx.fillText(text, 0, 0);
-          ctx.restore();
-        }
 
-        var vinylAngle = 0, vinylAngleDiff = Math.PI/10;
-        function drawVinyl() {
-          var w = canvas.width / 2;
-          ctx.save();
-          ctx.translate(w, -w/4);
-          ctx.rotate(vinylAngle);
-          ctx.drawImage(vinylImg, -w/2, -w/2, w, w);
-          ctx.restore();
-          vinylAngle += vinylAngleDiff;
-
-          if (sounds["rewind"].pos()) {
-            displayText("PULL UP");
-          }
-          if (sounds["fastforward"].pos()) {
-            displayText("GO FORWARD");
-          }
-        }
 
         function playSound(name) {
           if (sounds[name].pos() === 0) {
             sounds[name].play();
-          } else {
+          } else if (sounds[name].pos() < 0.5) {
             sounds[name].pos(0);
           }
         }
@@ -348,7 +397,7 @@
           drawActionButton(bombImg, sounds['bomb'], 0, 0, w);
           drawActionButton(klaxonImg, sounds['klaxon'], canvas.width-w, 0, w);
 
-          drawVinyl();
+          turnTable.draw();
 
           var regions = event.regions;
           if (regions[0] > 0) {
@@ -363,20 +412,13 @@
           var left = regions[2] + regions[3],
             right = regions[4] + regions[5];
           if (left > 0 && right > 0) {
-            if (left > right) {
-              if ((sounds['fastforward'].pos() === 0) && playSoundIfPaused('rewind')) {
-                var time = mediaPlayer.currentTime();
-                mediaPlayer.pause();
-                mediaPlayer.currentTime(time - 30);
-                vinylAngleDiff = - Math.PI / 5;
-              }
+            var diff = Math.abs(left - right);
+            if (diff < 30) {
+              turnTable.scratch();
+            } else if (left > right) {
+              turnTable.rewind();
             } else {
-              if ((sounds['rewind'].pos() === 0) && playSoundIfPaused('fastforward')) {
-                var time = mediaPlayer.currentTime();
-                mediaPlayer.pause();
-                mediaPlayer.currentTime(time + 30);
-                vinylAngleDiff = Math.PI / 5;
-              }
+              turnTable.fastforward();
             }
           }
         });
