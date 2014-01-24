@@ -15,6 +15,9 @@
       canvas#overlay {
         width: 100%;
         position: absolute;
+        transform: rotateY(180deg);
+        -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+        -moz-transform:rotateY(180deg);
       }
       video {
         width: 100%;
@@ -40,7 +43,7 @@
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>Demonstration</h3>
+        <h2>Motion Detection</h2>
 
         <div id="videoContainer">
           <video id="inputVideo" autoplay></video>
@@ -48,36 +51,53 @@
         </div>
 
         <h3>About this demonstration</h3>
-        <p>This is an example of detecting a user blinking with a webcam.</p>
+        <p>This is an example of using a webcam to detect a user's motion on a region at the top of the screen.</p>
         <p>It uses the following approach:</p>
         <ul>
-          <li>the user's face position is determined using the <a href="https://github.com/auduno/headtrackr/">headtrackr</a> library</li>
-          <li>from this the user's eyes region position is estimated (i.e. somewhere in the middle of the face.)</li>
-          <li>we then use a blob motion detection technique based on the approach from the Flash <a href="https://github.com/og2t/HiSlope">HiSlope</a> library.</li>
-          <li>if there are two blobs of motion in the eye region that are placed on opposite sides of the region then we trigger a blink</li>
+          <li>we blend the current frame with the previous frame to calculate what changed in between - this is based on the work by <a href="http://www.soundstep.com/blog/experiments/jsdetection/">Romuald Quantin</a>.</li>
+          <li>we take the top fifth of the video stream, split it into eight regions and if on average more than 10% of pixels have changed we can trigger some action for that region.</li>
         </ul>
-        <p>View the <a href="https://github.com/sidekickstudios/eyeplayer/blob/master/app/eyePlayer.js">eyePlayer.js</a> source on Github to see how the code works.</p>
+        <p>View the <a href="https://github.com/sidekickstudios/eyeplayer/blob/master/app/motionPlayer.js">motionPlayer.js</a> source on Github to see how the code works.</p>
 
         <h3>Usage example</h3>
-        <pre><code>&lt;script data-main="javascripts/eyePlayer.min.js" src="javascripts/require.js"&gt;&lt;/script&gt;
+        <pre><code>&lt;div id="videoContainer"&gt;
+  &lt;video id="inputVideo" autoplay&gt;&lt;/video&gt;
+  &lt;canvas id="overlay"&gt;&lt;/canvas&gt;
+&lt;/div&gt;
+
+&lt;script data-main="javascripts/eyePlayer.min.js" src="javascripts/require.js"&gt;&lt;/script&gt;
 &lt;script type="text/javascript"&gt;
-  var videoInput = document.getElementById('inputVideo');
-  var canvasOutput = document.getElementById('overlay');
+require(['motionPlayer'], function(motionPlayer) {
+  var scale = 1/3;
+  var video = document.getElementById('inputVideo');
+  var canvas = document.getElementById('overlay');
+  var motionplayer = new motionPlayer({
+    scale: scale, // scale the webcam image down to improve performance
+    filter: function(image) { // add a filter to the processed image, e.g. make it semi transparent
+      data = image.data;
+      for (var i=0; i&lt;data.length; i+=4) {
+        data[i+3] = 50;
+      }
+    }
+  });
+  var ctx = canvas.getContext('2d');
 
-  require(['eyePlayer'], function(eyePlayer) {
-    eyeplayer = new eyePlayer();
-    eyeplayer.init(videoInput, canvasOutput);
-    eyeplayer.start();
-  });
+  motionplayer.init(video, canvas);
+  motionplayer.start();
 
-  document.addEventListener('blinkEvent', function() {
-    /* DO SOMETHING FUN WHEN THE USER BLINKS */
+  document.addEventListener('motionEvent', function(event) {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+    // draw the motion image
+    ctx.drawImage(event.image, 0, canvas.height-(canvas.height*scale), canvas.width*scale, canvas.height*scale);
+
+    for (var i=0; i&lt;event.regions.length; i++) {
+      if (event.regions[i] > 0) {
+       // SOMETHING HAPPENED IN THIS REGION
+      }
+    }
   });
-  document.addEventListener('eyeTrackedEvent', function(event) {
-    /* DO SOMETHING FUN WHEN THE USER'S HEAD IS FOUND */
-    console.log(event.face);
-    console.log(event.eyes);
-  });
+});
 &lt;/script&gt;</code></pre>
 
         <p>View source of this page to see a more complete example.</p>
@@ -97,75 +117,52 @@
       </footer>
     </div>
 
-    <script data-main="javascripts/eyePlayer.min.js" src="javascripts/require.js"></script>
+    <script data-main="javascripts/motionPlayer.min.js" src="javascripts/require.js"></script>
     <script type="text/javascript">
-      var videoInput = document.getElementById('inputVideo');
-      var canvasOutput = document.getElementById('overlay');
+      require(['motionPlayer'], function(motionPlayer) {
+        var scale = 1/3;
+        var video = document.getElementById('inputVideo');
+        var canvas = document.getElementById('overlay');
+        var motionplayer = new motionPlayer({
+          debug: true,
+          scale: scale,
+          filter: function(image) {
+            data = image.data;
+            for (var i=0; i<data.length; i+=4) {
+              data[i+3] = 50;
+            }
+          }
+        });
+        var ctx = canvas.getContext('2d');
 
-      var ctx = canvasOutput.getContext('2d');
-      var countdown = 0;
+        motionplayer.init(video, canvas);
+        motionplayer.start();
 
-      var glassesImg = new Image();
-      glassesImg.src = "images/glasses.svg";
+        document.addEventListener('motionEvent', function(event) {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+          ctx.drawImage(event.image, 0, canvas.height-(canvas.height*scale), canvas.width*scale, canvas.height*scale);
 
-      var sounds = {}, audioFiles = ['wob'];
-      for (var i=0; i<audioFiles.length; i++) {
-        name = audioFiles[i];
-        sounds[name] = new Audio();
-        sounds[name].src = "sounds/" + name + ".mp3";
-      }
+          var w = canvas.width/8;
+          ctx.strokeStyle = "rgba(255,255,255,1)";
+          ctx.strokeRect(3, 3, canvas.width-6, w-3);
 
-      function drawFace(face) {
-        ctx.save();
-        ctx.translate(face.x, face.y);
-        if (face.angle) { ctx.rotate(face.angle); }
-        ctx.strokeStyle = '#000000';
+          for (var i=0; i<event.regions.length; i++) {
+            if (event.regions[i] > 0) {
+              ctx.fillStyle = "rgba(255,255,255," + (event.regions[i]/100) + ")";
+              ctx.fillRect(i*w, 0, w, w);
 
-        ctx.beginPath();
-        ctx.lineWidth = face.width/20;
-        ctx.arc(0, 0, face.width/2, 0, Math.PI*2);
-        ctx.closePath();
-        ctx.stroke();
+              ctx.fillStyle = "rgba(0,0,0,1)";
+              ctx.save();
+              ctx.translate(i*w, 10);
+              ctx.scale(-1,1);
+              ctx.font="10px Georgia";
+              ctx.fillText(Math.floor(event.regions[i]), w/2, w/2);
+              ctx.restore();
 
-        ctx.restore();
-      }
-
-      function drawEyes(eyes) {
-        ctx.save();
-        ctx.translate(eyes.x, eyes.y);
-        if (eyes.angle) { ctx.rotate(eyes.angle); }
-        var w = eyes.width * 0.8;
-        ctx.drawImage(glassesImg, -w, -w, w*2, w*2);
-        ctx.restore();
-      }
-
-      function playSoundIfPaused(name) {
-        if (sounds[name].paused) {
-          sounds[name].play();
-        }
-      }
-
-      document.addEventListener('blinkEvent', function() {
-        if (countdown == 0) {
-          playSoundIfPaused('wob');
-          countdown = 5;
-        }
-      });
-      document.addEventListener('eyeTrackedEvent', function(event) {
-        drawFace(event.face);
-        drawEyes(event.eyes);
-
-        if (countdown > 0) {
-          ctx.font="100px Georgia";
-          ctx.fillText("BLINK", 0, canvasOutput.height/2);
-          countdown -= 1;
-        }
-      });
-
-      require(['eyePlayer'], function(eyePlayer) {
-        eyeplayer = new eyePlayer();
-        eyeplayer.init(videoInput, canvasOutput);
-        eyeplayer.start();
+            }
+          }
+        });
       });
      </script>
   </body>
