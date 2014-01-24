@@ -8,6 +8,10 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
     <style>
+      div#instructions {
+        text-align: center;
+        position: absolute;
+      }
       div#videoContainer {
         max-width: 1024px;
         height: 480px;
@@ -73,8 +77,13 @@
         <h3>Demonstration</h3>
 
         <div id="videoContainer">
+          <div id="instructions">
+            <h3>You need to let us access your camera! (see above)</h3>
+            <p>Instructions go here</p>
+          </div>
           <video id="inputVideo" autoplay></video>
           <canvas id="overlay"></canvas>
+
         </div>
         <div id="mediaPlayer" style="width: 100%; height: 83px;"></div>
 
