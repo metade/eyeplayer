@@ -323,11 +323,11 @@
 
           this.scratch = function(diff) {
             if (!this.status()) {
+              mediaPlayer.pause();
               var sound = (diff > 0) ? sounds['scratch'] : sounds['scratch-back'];
               sound._rate = 0.5 + (Math.abs(diff)/50);
               sound.play();
               vinylAngleDiff = 0;
-              mediaPlayer.pause();
             }
           }
 
