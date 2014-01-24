@@ -47,7 +47,8 @@
       #episodes a h5, #episodes a p {
         margin: 0px 5px 0px 5px;
       }
-      h4 small { font-size: smaller; }
+      h2 small, h4 small { font-size: smaller; }
+      .credits { font-size: smaller; }
     </style>
 
     <title>Eyeplayer</title>
@@ -55,21 +56,19 @@
 
   <body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
+    <div class="outer" style="background: #000;">
         <header class="inner">
-          <a id="forkme_banner" href="https://github.com/sidekickstudios/eyeplayer">View on GitHub</a>
-
-          <h1 id="project_title"><a href="./">Eyeplayer</a></h1>
-          <h2 id="project_tagline">Control stuff with your webcam using Javascript</h2>
+          <img src="images/logo.png" style="width: 100%; border: none; shadow: none; box-shadow: none;">
+          <p style="text-align: center; color: white;">
+            Use your webcam to interact with your favourite BBC Radio 1 dance shows. <br>
+            <a href="./">Find out more</a>
+          </p>
         </header>
     </div>
 
     <!-- MAIN CONTENT -->
     <div id="main_content_wrap" class="outer">
       <section id="main_content" class="inner">
-        <h3>Demonstration</h3>
-
         <div id="videoContainer">
           <div id="instructions">
             <h3>You need to let us access your camera! (see above)</h3>
@@ -93,31 +92,10 @@
         </div>
 
 
-        <h3>Usage example</h3>
-
-        <pre><code>
-          ...
-        </code></pre>
-
-        <ul>
-          <li class="attribution">Record designed by <a href="/joylucktrevor">Trevor Tarczynski</a> from the <a href="http://www.thenounproject.com">Noun Project</a></li>
-        </ul>
-
+        <p class="credits">
+          Record designed by <a href="/joylucktrevor">Trevor Tarczynski</a> from the <a href="http://www.thenounproject.com">Noun Project</a>
+        </p>
       </section>
-    </div>
-
-    <div id="footer_wrap" class="outer">
-      <!-- FOOTER  -->
-      <footer class="inner">
-        <section id="downloads">
-          <p><strong>Download the code</strong></p>
-          <a class="zip_download_link" href="https://github.com/sidekickstudios/eyeplayer/zipball/master">Download this project as a .zip file</a>
-          <a class="tar_download_link" href="https://github.com/sidekickstudios/eyeplayer/tarball/master">Download this project as a tar.gz file</a>
-        </section>
-
-        <p class="copyright">Eyeplayer maintained by <a href="https://github.com/sidekickstudios">sidekickstudios</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
     </div>
 
     <script data-main="javascripts/motionPlayer.min.js" src="javascripts/require.js"></script>
