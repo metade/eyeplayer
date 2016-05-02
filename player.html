@@ -102,9 +102,9 @@
     <script type="text/javascript">
       var mediaPlayer;
       var bbcRequireMap = {
-        "jquery-1.9":"http://static.bbci.co.uk/frameworks/jquery/0.3.0/sharedmodules/jquery-1.9.1",
-        "swfobject-2":"http://static.bbci.co.uk/frameworks/swfobject/0.1.10/sharedmodules/swfobject-2",
-        "bump-3":"http://emp.bbci.co.uk/emp/bump-3/bump-3"
+        "jquery-1.9":"https://static.bbci.co.uk/frameworks/jquery/0.3.0/sharedmodules/jquery-1.9.1",
+        "swfobject-2":"https://static.bbci.co.uk/frameworks/swfobject/0.1.10/sharedmodules/swfobject-2",
+        "bump-3":"https://emp.bbci.co.uk/emp/bump-3/bump-3"
       }
       require({ paths: bbcRequireMap, waitSeconds: 30 });
       require(['bump-3', 'motionPlayer', 'howler.min', 'gif'],function ($, motionPlayer, Howler, Gif) {
@@ -120,10 +120,10 @@
         function playEpisode(episode) {
           $('#episodes a').removeClass('playing');
           episode.addClass('playing');
-          mediaPlayer.load('http://www.bbc.co.uk/iplayer/playlist/' + episode.data('pid'));
+          mediaPlayer.load('https://www.bbc.co.uk/iplayer/playlist/' + episode.data('pid'));
         }
 
-        url = "http://www.bbc.co.uk/radio1/programmes/genres/music/danceandelectronica/player/episodes.json"
+        url = "https://www.bbc.co.uk/radio1/programmes/genres/music/danceandelectronica/player/episodes.json"
         $.ajax({
           dataType: "json",
           url: url,
@@ -131,7 +131,7 @@
             data.episodes.forEach(function(episode) {
               var pid = episode.programme.pid;
               var html = '<a data-pid="' + pid + '">' +
-                '  <img src="http://ichef.bbci.co.uk/images/ic/192x108/legacy/episode/' + pid + '.jpg?nodefault=true" />' +
+                '  <img src="https://ichef.bbci.co.uk/images/ic/192x108/legacy/episode/' + pid + '.jpg?nodefault=true" />' +
                 '  <h5>' + episode.programme.programme.title + '</h5>' +
                 '  <p>' + episode.programme.title + '</p>' +
                 '</a>'
